@@ -3,6 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const session = require('express-session');
+const pgSession = require('connect-pg-simple')(session);
 const { initDB, pool } = require('./db');
 const { passport } = require('./auth');
 const chatRoutes = require('./routes/chat');
@@ -18,7 +19,15 @@ app.use(express.static(path.join(__dirname, '../public')));
 // Session
 const isProd = process.env.NODE_ENV === 'production';
 
+// Trust Render's proxy for secure cookies
+if (isProd) app.set('trust proxy', 1);
+
 app.use(session({
+  store: new pgSession({
+    pool,
+    tableName: 'session',
+    createTableIfMissing: true,
+  }),
   secret: process.env.SESSION_SECRET || 'dude_secret',
   resave: false,
   saveUninitialized: false,
@@ -28,9 +37,6 @@ app.use(session({
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   },
 }));
-
-// Trust Render's proxy for secure cookies
-if (isProd) app.set('trust proxy', 1);
 
 app.use(passport.initialize());
 app.use(passport.session());
