@@ -118,9 +118,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     let seconds = 15;
     adTimerText.textContent = seconds + 's';
 
-    // Fire Adsterra popunder — opens ad in new tab
-    window.open('about:blank', '_blank');
-
     adTimer = setInterval(() => {
       seconds--;
       const pct = ((15 - seconds) / 15) * 100;
