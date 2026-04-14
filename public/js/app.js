@@ -115,13 +115,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     adOverlay.style.display = 'flex';
     claimBtn.disabled = true;
     adTimerFill.style.width = '0%';
-    let seconds = 5;
+    let seconds = 15;
     adTimerText.textContent = seconds + 's';
 
-    // Simulate ad countdown (replace with real rewarded ad callback)
+    // Fire Adsterra popunder — opens ad in new tab
+    window.open('about:blank', '_blank');
+
     adTimer = setInterval(() => {
       seconds--;
-      const pct = ((5 - seconds) / 5) * 100;
+      const pct = ((15 - seconds) / 15) * 100;
       adTimerFill.style.width = pct + '%';
       adTimerText.textContent = seconds > 0 ? seconds + 's' : 'Done!';
       if (seconds <= 0) {
