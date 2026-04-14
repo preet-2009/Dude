@@ -1,6 +1,20 @@
 /**
- * sidebar.js — Chat session management (DB-backed)
+ * Custom delete confirmation popup
  */
+function showDeleteConfirm(onConfirm) {
+  const overlay = document.getElementById('deleteConfirmOverlay');
+  overlay.style.display = 'flex';
+
+  const yes   = document.getElementById('deleteConfirmYes');
+  const no    = document.getElementById('deleteConfirmClose');
+  const cancel = document.getElementById('deleteConfirmNo');
+
+  function close() { overlay.style.display = 'none'; }
+
+  yes.onclick    = () => { close(); onConfirm(); };
+  no.onclick     = close;
+  cancel.onclick = close;
+}
 const Sidebar = (() => {
   let sessions = [];
   let _activeChatId = null;
@@ -84,7 +98,7 @@ const Sidebar = (() => {
       del.className = 'chat-item-delete';
       del.innerHTML = '🗑';
       del.title = 'Delete';
-      del.onclick = (e) => { e.stopPropagation(); if (confirm('Delete this chat?')) deleteChat(s.id); };
+      del.onclick = (e) => { e.stopPropagation(); showDeleteConfirm(() => deleteChat(s.id)); };
 
       item.appendChild(icon);
       item.appendChild(title);

@@ -16,12 +16,21 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Session
+const isProd = process.env.NODE_ENV === 'production';
+
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dude_secret',
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 7 * 24 * 60 * 60 * 1000, httpOnly: true }, // 7 days
+  cookie: {
+    secure: isProd,       // HTTPS only in production
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  },
 }));
+
+// Trust Render's proxy for secure cookies
+if (isProd) app.set('trust proxy', 1);
 
 app.use(passport.initialize());
 app.use(passport.session());

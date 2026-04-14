@@ -450,6 +450,19 @@ textarea#messageInput::placeholder { color: var(--text3); }
 .btn-claim:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn-claim:not(:disabled):hover { opacity: 0.85; }
 
+.btn-delete {
+  padding: 10px 24px; border-radius: 8px; border: none;
+  background: #e53935; color: #fff; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.btn-delete:hover { opacity: 0.85; }
+.btn-cancel {
+  padding: 10px 24px; border-radius: 8px; border: 1px solid var(--border2);
+  background: var(--bg4); color: var(--text); font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.btn-cancel:hover { opacity: 0.75; }
+
 /* Ad banner top */
 .ad-banner-top {
   width: 100%; background: var(--bg2);
