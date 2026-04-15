@@ -96,7 +96,10 @@ router.post('/send', async (req, res) => {
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error('OpenRouter error:', errText);
+      console.error('Groq error:', errText);
+      if (response.status === 429) {
+        return res.status(429).json({ error: 'rate_limit' });
+      }
       return res.status(response.status).json({ error: 'AI API error', detail: errText });
     }
 

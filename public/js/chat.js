@@ -39,6 +39,10 @@ const Chat = (() => {
         UI.removeTypingIndicator();
         if (res.status === 402) {
           if (window.showNoCredits) window.showNoCredits();
+        } else if (res.status === 429 || err.error === 'rate_limit') {
+          const firstName = (window._userName || 'buddy').split(' ')[0];
+          const { content } = UI.appendAIMessage();
+          content.innerHTML = `Ohh ${firstName}! Wait for a while, let me drink water 💧`;
         } else {
           showError(err.error || 'AI API error');
         }

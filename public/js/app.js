@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('userAvatar').innerHTML    = html;
     document.getElementById('userAvatarTop').innerHTML = html;
 
+    // Expose name globally for use in chat.js
+    window._userName = user.name || 'buddy';
+
     // Personalize welcome screen with first name
     const firstName = (user.name || 'there').split(' ')[0];
     const welcomeH2 = document.querySelector('.welcome h2');
