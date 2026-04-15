@@ -57,10 +57,21 @@ router.post('/logout', (req, res) => {
   req.logout(() => res.json({ success: true }));
 });
 
+const OWNER_EMAIL = 'preet.shaileshbhai.desai1@gmail.com';
+
 // ── Current user ──────────────────────────────
 router.get('/me', (req, res) => {
   if (!req.user) return res.status(401).json({ error: 'Not authenticated' });
-  res.json({ user: { name: req.user.name, email: req.user.email, avatar: req.user.avatar, credits: req.user.credits ?? 200 } });
+  const isOwner = req.user.email === OWNER_EMAIL;
+  res.json({
+    user: {
+      name: req.user.name,
+      email: req.user.email,
+      avatar: req.user.avatar,
+      credits: isOwner ? 999999 : (req.user.credits ?? 200),
+      isOwner,
+    }
+  });
 });
 
 // ── Add credits (after watching ad) ───────────

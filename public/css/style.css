@@ -470,6 +470,17 @@ textarea#messageInput::placeholder { color: var(--text3); }
   text-align: center; min-height: 60px;
 }
 
+/* Owner badge */
+.owner-badge {
+  display: inline-block;
+  font-size: 10px; font-weight: 700;
+  background: linear-gradient(135deg, #f7c948, #e6a817);
+  color: #000;
+  padding: 1px 7px; border-radius: 20px;
+  margin-left: 5px; vertical-align: middle;
+  letter-spacing: 0.5px;
+}
+
 /* ── Toast ─────────────────────────────────── */
 .toast {
   position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(10px);

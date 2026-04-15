@@ -24,18 +24,24 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (welcomeH2) welcomeH2.innerHTML = `Hey <span>${firstName}</span>, I'm DUDE`;
 
     currentCredits = user.credits ?? 200;
-    updateCreditsUI(currentCredits);
+    updateCreditsUI(currentCredits, user.isOwner);
+
+    if (user.isOwner) {
+      // Show owner badge next to name in sidebar
+      const nameEl = document.getElementById('userName');
+      nameEl.innerHTML = `${user.name || 'Owner'} <span class="owner-badge">👑 Owner</span>`;
+    }
   } catch {
     location.href = '/login';
     return;
   }
 
   // ── Credits UI ─────────────────────────────
-  function updateCreditsUI(n) {
+  function updateCreditsUI(n, isOwner) {
     currentCredits = n;
     const badge = document.getElementById('creditsBadge');
-    document.getElementById('creditsCount').textContent = n;
-    badge.classList.toggle('low', n < 20);
+    document.getElementById('creditsCount').textContent = isOwner ? '∞' : n;
+    badge.classList.toggle('low', !isOwner && n < 20);
   }
 
   // Expose so chat.js can call it

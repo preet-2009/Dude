@@ -28,10 +28,11 @@ router.post('/send', async (req, res) => {
   }
 
   try {
-    // Check credits
+    // Check credits (owner has infinite)
+    const isOwner = req.user.email === 'preet.shaileshbhai.desai1@gmail.com';
     const { rows: userRows } = await pool.query('SELECT credits FROM users WHERE id = $1', [req.user.id]);
     const credits = userRows[0]?.credits ?? 0;
-    if (credits < 5) {
+    if (!isOwner && credits < 5) {
       return res.status(402).json({ error: 'Not enough credits. Watch an ad to earn more!' });
     }
 
@@ -53,12 +54,15 @@ router.post('/send', async (req, res) => {
       [sessionId, 'user', userContent]
     );
 
-    // Deduct 5 credits
-    const { rows: creditRows } = await pool.query(
-      'UPDATE users SET credits = credits - 5 WHERE id = $1 RETURNING credits',
-      [req.user.id]
-    );
-    const remainingCredits = creditRows[0]?.credits ?? 0;
+    // Deduct 5 credits (skip for owner)
+    let remainingCredits = credits;
+    if (!isOwner) {
+      const { rows: creditRows } = await pool.query(
+        'UPDATE users SET credits = credits - 5 WHERE id = $1 RETURNING credits',
+        [req.user.id]
+      );
+      remainingCredits = creditRows[0]?.credits ?? 0;
+    }
 
     // Auto-title session from first user message
     await pool.query(
