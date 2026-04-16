@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (user.isOwner) {
       // Show owner badge next to name in sidebar
       const nameEl = document.getElementById('userName');
-      nameEl.innerHTML = `${user.name || 'Owner'} <span class="owner-badge">👑 Owner</span>`;
+      nameEl.innerHTML = `${user.name || 'Owner'} <span class="owner-badge">👑</span>`;
     }
   } catch {
     location.href = '/login';
@@ -37,9 +37,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── Credits UI ─────────────────────────────
   function updateCreditsUI(n, isOwner) {
     currentCredits = n;
-    const badge = document.getElementById('creditsBadge');
-    document.getElementById('creditsCount').textContent = isOwner ? '∞' : n;
-    badge.classList.toggle('low', !isOwner && n < 20);
+    const countSmall = document.getElementById('creditsCountSmall');
+    if (countSmall) countSmall.textContent = isOwner ? '∞' : n;
   }
 
   // Expose so chat.js can call it
@@ -131,9 +130,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     clearInterval(adTimer);
   }
 
-  // Credits badge click opens ad modal
-  document.getElementById('creditsBadge').addEventListener('click', openAdModal);
+  // Watch ad button and upgrade button
   document.getElementById('watchAdBtn')?.addEventListener('click', openAdModal);
+  document.getElementById('upgradeBtn')?.addEventListener('click', openAdModal);
   document.getElementById('adModalClose').addEventListener('click', closeAdModal);
 
   claimBtn.addEventListener('click', async () => {
