@@ -7,21 +7,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!res.ok) { location.href = '/login'; return; }
     const { user } = await res.json();
 
-    document.getElementById('userName').textContent  = user.name  || 'User';
-    document.getElementById('userEmail').textContent = user.email || '';
+    document.getElementById('userName').textContent = user.name || 'User';
 
     const initial = (user.name || 'U')[0].toUpperCase();
     const html = user.avatar ? `<img src="${user.avatar}" alt="avatar"/>` : initial;
-    document.getElementById('userAvatar').innerHTML    = html;
-    document.getElementById('userAvatarTop').innerHTML = html;
+    document.getElementById('userAvatar').innerHTML = html;
 
     // Expose name globally for use in chat.js
     window._userName = user.name || 'buddy';
 
     // Personalize welcome screen with first name
     const firstName = (user.name || 'there').split(' ')[0];
-    const welcomeH2 = document.querySelector('.welcome h2');
-    if (welcomeH2) welcomeH2.innerHTML = `Hey <span>${firstName}</span>, I'm DUDE`;
+    const welcomeUserName = document.getElementById('welcomeUserName');
+    if (welcomeUserName) welcomeUserName.textContent = firstName;
 
     currentCredits = user.credits ?? 200;
     updateCreditsUI(currentCredits, user.isOwner);
@@ -78,10 +76,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // ── File upload ────────────────────────────
-  document.getElementById('fileInput').addEventListener('change', (e) => {
+  const fileInput = document.getElementById('fileInput');
+  document.querySelector('.add-btn').addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', (e) => {
     if (e.target.files[0]) Chat.uploadFile(e.target.files[0]);
   });
-  document.getElementById('removeFileBtn').addEventListener('click', () => Chat.clearFilePreview());
+  document.getElementById('removeFileBtn')?.addEventListener('click', () => Chat.clearFilePreview());
 
   // ── New chat ───────────────────────────────
   document.getElementById('newChatBtn').addEventListener('click', () => {
@@ -92,26 +92,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (window.innerWidth <= 640) document.getElementById('sidebar').classList.remove('open');
   });
 
-  // ── Logout ─────────────────────────────────
-  document.getElementById('logoutBtn').addEventListener('click', async () => {
-    await fetch('/auth/logout', { method: 'POST' });
-    location.href = '/login';
+  // ── User info click (show menu) ────────────
+  document.getElementById('userInfoBtn')?.addEventListener('click', () => {
+    // Could show a menu with logout, settings, etc.
+    if (confirm('Sign out?')) {
+      fetch('/auth/logout', { method: 'POST' }).then(() => location.href = '/login');
+    }
   });
-
-  // ── Theme ──────────────────────────────────
-  const theme = localStorage.getItem('theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', theme);
-  document.getElementById('themeToggle').addEventListener('click', () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-  });
-
-  // ── Sidebar mobile ─────────────────────────
-  const sidebar = document.getElementById('sidebar');
-  document.getElementById('sidebarToggle').addEventListener('click', () => sidebar.classList.toggle('open'));
-  document.getElementById('sidebarClose').addEventListener('click',  () => sidebar.classList.remove('open'));
-  window.addEventListener('resize', () => { if (window.innerWidth > 640) sidebar.classList.remove('open'); });
 
   // ── Ad Modal ───────────────────────────────
   const adOverlay    = document.getElementById('adModalOverlay');
@@ -144,7 +131,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     clearInterval(adTimer);
   }
 
-  document.getElementById('watchAdBtn').addEventListener('click', openAdModal);
+  // Credits badge click opens ad modal
+  document.getElementById('creditsBadge').addEventListener('click', openAdModal);
+  document.getElementById('watchAdBtn')?.addEventListener('click', openAdModal);
   document.getElementById('adModalClose').addEventListener('click', closeAdModal);
 
   claimBtn.addEventListener('click', async () => {
@@ -191,6 +180,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function useChip(el) {
   const input = document.getElementById('messageInput');
-  input.value = el.textContent.replace(/^\S+\s/, '');
+  input.value = el.textContent.trim();
   input.focus();
 }
