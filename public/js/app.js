@@ -8,11 +8,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!res.ok) { location.href = '/login'; return; }
     const { user } = await res.json();
 
-    document.getElementById('userName').textContent = user.name || 'User';
+    const userNameEl = document.getElementById('userName');
+    if (userNameEl) userNameEl.textContent = user.name || 'User';
 
     const initial = (user.name || 'U')[0].toUpperCase();
     const html = user.avatar ? `<img src="${user.avatar}" alt="avatar"/>` : initial;
-    document.getElementById('userAvatar').innerHTML = html;
+    const userAvatarEl = document.getElementById('userAvatar');
+    if (userAvatarEl) userAvatarEl.innerHTML = html;
 
     // Expose name globally for use in chat.js
     window._userName = user.name || 'buddy';
@@ -26,11 +28,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     isOwner = user.isOwner || false;
     updateCreditsUI(currentCredits, isOwner);
 
-    if (isOwner) {
-      const nameEl = document.getElementById('userName');
-      nameEl.innerHTML = `${user.name || 'Owner'} <span class="owner-badge">👑</span>`;
+    if (isOwner && userNameEl) {
+      userNameEl.innerHTML = `${user.name || 'Owner'} <span class="owner-badge">👑</span>`;
     }
-  } catch {
+  } catch (err) {
+    console.error('Auth error:', err);
     location.href = '/login';
     return;
   }
@@ -50,33 +52,51 @@ document.addEventListener('DOMContentLoaded', async () => {
   window.updateCreditsUI = updateCreditsUI;
   window.getCurrentCredits = () => currentCredits;
   window.showNoCredits = () => {
-    document.getElementById('noCreditsOverlay').style.display = 'flex';
+    const overlay = document.getElementById('noCreditsOverlay');
+    if (overlay) overlay.style.display = 'flex';
   };
 
   // ── Init sidebar — always start fresh new chat on load ──
-  await Sidebar.init();
-  Sidebar.createNewChat();
-  UI.clearMessages();
+  try {
+    await Sidebar.init();
+    Sidebar.createNewChat();
+    UI.clearMessages();
+  } catch (err) {
+    console.error('Sidebar init error:', err);
+  }
 
   // ── Send ───────────────────────────────────
   const input   = document.getElementById('messageInput');
   const sendBtn = document.getElementById('sendBtn');
 
+  if (!input || !sendBtn) {
+    console.error('Input or send button not found');
+    return;
+  }
+
   function doSend() {
     const text = input.value.trim();
     if (!text) return;
+    console.log('Sending message:', text);
     Chat.sendMessage(text);
     input.value = '';
     input.style.height = 'auto';
   }
 
-  sendBtn.addEventListener('click', doSend);
+  sendBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    console.log('Send button clicked');
+    doSend();
+  });
+
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) { 
       e.preventDefault(); 
+      console.log('Enter key pressed');
       doSend(); 
     }
   });
+
   input.addEventListener('input', () => {
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 200) + 'px';
@@ -85,128 +105,167 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── File upload ────────────────────────────
   const fileInput = document.getElementById('fileInput');
   const addBtn = document.querySelector('.add-btn');
-  if (addBtn) {
-    addBtn.addEventListener('click', () => fileInput.click());
+  if (addBtn && fileInput) {
+    addBtn.addEventListener('click', () => {
+      console.log('Add button clicked');
+      fileInput.click();
+    });
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) Chat.uploadFile(e.target.files[0]);
+    });
   }
-  fileInput.addEventListener('change', (e) => {
-    if (e.target.files[0]) Chat.uploadFile(e.target.files[0]);
-  });
+  
   const removeFileBtn = document.getElementById('removeFileBtn');
   if (removeFileBtn) {
     removeFileBtn.addEventListener('click', () => Chat.clearFilePreview());
   }
 
   // ── New chat ───────────────────────────────
-  document.getElementById('newChatBtn').addEventListener('click', () => {
-    Sidebar.createNewChat();
-    UI.clearMessages();
-    Chat.clearFilePreview();
-    input.value = '';
-    if (window.innerWidth <= 640) document.getElementById('sidebar').classList.remove('open');
-  });
+  const newChatBtn = document.getElementById('newChatBtn');
+  if (newChatBtn) {
+    newChatBtn.addEventListener('click', () => {
+      console.log('New chat clicked');
+      Sidebar.createNewChat();
+      UI.clearMessages();
+      if (Chat.clearFilePreview) Chat.clearFilePreview();
+      input.value = '';
+      if (window.innerWidth <= 640) {
+        const sidebar = document.getElementById('sidebar');
+        if (sidebar) sidebar.classList.remove('open');
+      }
+    });
+  }
 
   // ── Settings ───────────────────────────────
   const settingsScreen = document.getElementById('settingsScreen');
   const messagesDiv = document.getElementById('messages');
   const welcomeDiv = document.getElementById('welcome');
   
-  document.getElementById('settingsBtn').addEventListener('click', () => {
-    settingsScreen.style.display = 'block';
-    messagesDiv.style.display = 'none';
-    if (welcomeDiv) welcomeDiv.style.display = 'none';
-  });
+  const settingsBtn = document.getElementById('settingsBtn');
+  if (settingsBtn && settingsScreen && messagesDiv) {
+    settingsBtn.addEventListener('click', () => {
+      console.log('Settings clicked');
+      settingsScreen.style.display = 'block';
+      messagesDiv.style.display = 'none';
+      if (welcomeDiv) welcomeDiv.style.display = 'none';
+    });
+  }
 
-  document.getElementById('historyBtn').addEventListener('click', () => {
-    settingsScreen.style.display = 'none';
-    messagesDiv.style.display = 'block';
-    if (welcomeDiv && messagesDiv.querySelectorAll('.message-row').length === 0) {
-      welcomeDiv.style.display = 'flex';
-    }
-  });
+  const historyBtn = document.getElementById('historyBtn');
+  if (historyBtn && settingsScreen && messagesDiv) {
+    historyBtn.addEventListener('click', () => {
+      console.log('History clicked');
+      settingsScreen.style.display = 'none';
+      messagesDiv.style.display = 'block';
+      if (welcomeDiv && messagesDiv.querySelectorAll('.message-row').length === 0) {
+        welcomeDiv.style.display = 'flex';
+      }
+    });
+  }
 
-  document.getElementById('closeSettingsBtn').addEventListener('click', () => {
-    settingsScreen.style.display = 'none';
-    messagesDiv.style.display = 'block';
-    if (welcomeDiv && messagesDiv.querySelectorAll('.message-row').length === 0) {
-      welcomeDiv.style.display = 'flex';
-    }
-  });
+  const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  if (closeSettingsBtn && settingsScreen && messagesDiv) {
+    closeSettingsBtn.addEventListener('click', () => {
+      console.log('Close settings clicked');
+      settingsScreen.style.display = 'none';
+      messagesDiv.style.display = 'block';
+      if (welcomeDiv && messagesDiv.querySelectorAll('.message-row').length === 0) {
+        welcomeDiv.style.display = 'flex';
+      }
+    });
+  }
 
   // Settings functionality
   const themeSelect = document.getElementById('themeSelect');
-  const savedTheme = localStorage.getItem('theme') || 'dark';
-  themeSelect.value = savedTheme;
-  document.documentElement.setAttribute('data-theme', savedTheme);
-  
-  themeSelect.addEventListener('change', (e) => {
-    const theme = e.target.value;
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
-  });
+  if (themeSelect) {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    themeSelect.value = savedTheme;
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    themeSelect.addEventListener('change', (e) => {
+      const theme = e.target.value;
+      document.documentElement.setAttribute('data-theme', theme);
+      localStorage.setItem('theme', theme);
+    });
+  }
 
   // Font size
   const fontSizeSelect = document.getElementById('fontSizeSelect');
-  const savedFontSize = localStorage.getItem('fontSize') || 'medium';
-  fontSizeSelect.value = savedFontSize;
-  document.body.setAttribute('data-font-size', savedFontSize);
-  
-  fontSizeSelect.addEventListener('change', (e) => {
-    const size = e.target.value;
-    document.body.setAttribute('data-font-size', size);
-    localStorage.setItem('fontSize', size);
-  });
+  if (fontSizeSelect) {
+    const savedFontSize = localStorage.getItem('fontSize') || 'medium';
+    fontSizeSelect.value = savedFontSize;
+    document.body.setAttribute('data-font-size', savedFontSize);
+    
+    fontSizeSelect.addEventListener('change', (e) => {
+      const size = e.target.value;
+      document.body.setAttribute('data-font-size', size);
+      localStorage.setItem('fontSize', size);
+    });
+  }
 
   // Chat style
   const chatStyleSelect = document.getElementById('chatStyleSelect');
-  const savedChatStyle = localStorage.getItem('chatStyle') || 'default';
-  chatStyleSelect.value = savedChatStyle;
-  document.body.setAttribute('data-chat-style', savedChatStyle);
-  
-  chatStyleSelect.addEventListener('change', (e) => {
-    const style = e.target.value;
-    document.body.setAttribute('data-chat-style', style);
-    localStorage.setItem('chatStyle', style);
-  });
+  if (chatStyleSelect) {
+    const savedChatStyle = localStorage.getItem('chatStyle') || 'default';
+    chatStyleSelect.value = savedChatStyle;
+    document.body.setAttribute('data-chat-style', savedChatStyle);
+    
+    chatStyleSelect.addEventListener('change', (e) => {
+      const style = e.target.value;
+      document.body.setAttribute('data-chat-style', style);
+      localStorage.setItem('chatStyle', style);
+    });
+  }
 
   // Reset chat
-  document.getElementById('resetChatBtn').addEventListener('click', async () => {
-    if (confirm('Are you sure you want to delete all conversations? This cannot be undone.')) {
-      try {
-        // Delete all sessions
-        const sessions = await fetch('/api/chat/sessions').then(r => r.json());
-        for (const session of sessions) {
-          await fetch(`/api/chat/sessions/${session.id}`, { method: 'DELETE' });
+  const resetChatBtn = document.getElementById('resetChatBtn');
+  if (resetChatBtn) {
+    resetChatBtn.addEventListener('click', async () => {
+      if (confirm('Are you sure you want to delete all conversations? This cannot be undone.')) {
+        try {
+          const sessions = await fetch('/api/chat/sessions').then(r => r.json());
+          for (const session of sessions) {
+            await fetch(`/api/chat/sessions/${session.id}`, { method: 'DELETE' });
+          }
+          Sidebar.createNewChat();
+          UI.clearMessages();
+          showToast('✓ All chats deleted');
+        } catch (e) {
+          showToast('⚠ Failed to reset chats');
         }
-        Sidebar.createNewChat();
-        UI.clearMessages();
-        showToast('✓ All chats deleted');
-      } catch (e) {
-        showToast('⚠ Failed to reset chats');
       }
-    }
-  });
+    });
+  }
 
   // ── User info click ────────────────────────
-  document.getElementById('userInfoBtn')?.addEventListener('click', () => {
-    if (confirm('Sign out?')) {
-      fetch('/auth/logout', { method: 'POST' }).then(() => location.href = '/login');
-    }
-  });
+  const userInfoBtn = document.getElementById('userInfoBtn');
+  if (userInfoBtn) {
+    userInfoBtn.addEventListener('click', () => {
+      if (confirm('Sign out?')) {
+        fetch('/auth/logout', { method: 'POST' }).then(() => location.href = '/login');
+      }
+    });
+  }
 
   // ── Help Modal ─────────────────────────────
   const helpModal = document.getElementById('helpModalOverlay');
   
   function openHelpModal() {
-    helpModal.style.display = 'flex';
+    console.log('Opening help modal');
+    if (helpModal) helpModal.style.display = 'flex';
   }
   
   function closeHelpModal() {
-    helpModal.style.display = 'none';
+    if (helpModal) helpModal.style.display = 'none';
   }
 
-  document.getElementById('helpIconBtn')?.addEventListener('click', openHelpModal);
-  document.getElementById('helpBtnTop')?.addEventListener('click', openHelpModal);
-  document.getElementById('helpModalClose')?.addEventListener('click', closeHelpModal);
+  const helpIconBtn = document.getElementById('helpIconBtn');
+  const helpBtnTop = document.getElementById('helpBtnTop');
+  const helpModalClose = document.getElementById('helpModalClose');
+  
+  if (helpIconBtn) helpIconBtn.addEventListener('click', openHelpModal);
+  if (helpBtnTop) helpBtnTop.addEventListener('click', openHelpModal);
+  if (helpModalClose) helpModalClose.addEventListener('click', closeHelpModal);
 
   // ── Ad Modal ───────────────────────────────
   const adOverlay    = document.getElementById('adModalOverlay');
@@ -216,62 +275,78 @@ document.addEventListener('DOMContentLoaded', async () => {
   let adTimer        = null;
 
   function openAdModal() {
+    console.log('Opening ad modal');
+    if (!adOverlay) return;
     adOverlay.style.display = 'flex';
-    claimBtn.disabled = true;
-    adTimerFill.style.width = '0%';
+    if (claimBtn) claimBtn.disabled = true;
+    if (adTimerFill) adTimerFill.style.width = '0%';
     let seconds = 15;
-    adTimerText.textContent = seconds + 's';
+    if (adTimerText) adTimerText.textContent = seconds + 's';
 
     adTimer = setInterval(() => {
       seconds--;
       const pct = ((15 - seconds) / 15) * 100;
-      adTimerFill.style.width = pct + '%';
-      adTimerText.textContent = seconds > 0 ? seconds + 's' : 'Done!';
+      if (adTimerFill) adTimerFill.style.width = pct + '%';
+      if (adTimerText) adTimerText.textContent = seconds > 0 ? seconds + 's' : 'Done!';
       if (seconds <= 0) {
         clearInterval(adTimer);
-        claimBtn.disabled = false;
+        if (claimBtn) claimBtn.disabled = false;
       }
     }, 1000);
   }
 
   function closeAdModal() {
-    adOverlay.style.display = 'none';
-    clearInterval(adTimer);
+    if (adOverlay) adOverlay.style.display = 'none';
+    if (adTimer) clearInterval(adTimer);
   }
 
   // Watch ad button and buy credits button
-  document.getElementById('watchAdBtn')?.addEventListener('click', openAdModal);
-  document.getElementById('buyCreditsBtn')?.addEventListener('click', openAdModal);
-  document.getElementById('adModalClose').addEventListener('click', closeAdModal);
+  const watchAdBtn = document.getElementById('watchAdBtn');
+  const buyCreditsBtn = document.getElementById('buyCreditsBtn');
+  const adModalClose = document.getElementById('adModalClose');
+  
+  if (watchAdBtn) watchAdBtn.addEventListener('click', openAdModal);
+  if (buyCreditsBtn) buyCreditsBtn.addEventListener('click', openAdModal);
+  if (adModalClose) adModalClose.addEventListener('click', closeAdModal);
 
-  claimBtn.addEventListener('click', async () => {
-    claimBtn.disabled = true;
-    claimBtn.textContent = 'Claiming…';
-    try {
-      const res = await fetch('/auth/credits/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: 20 }),
-      });
-      const data = await res.json();
-      updateCreditsUI(data.credits, isOwner);
-      closeAdModal();
-      showToast('🎉 +20 credits added!');
-    } catch {
-      claimBtn.disabled = false;
-      claimBtn.textContent = 'Claim 20 Credits';
-    }
-  });
+  if (claimBtn) {
+    claimBtn.addEventListener('click', async () => {
+      claimBtn.disabled = true;
+      claimBtn.textContent = 'Claiming…';
+      try {
+        const res = await fetch('/auth/credits/add', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ amount: 20 }),
+        });
+        const data = await res.json();
+        updateCreditsUI(data.credits, isOwner);
+        closeAdModal();
+        showToast('🎉 +20 credits added!');
+      } catch {
+        claimBtn.disabled = false;
+        claimBtn.textContent = 'Claim 20 Credits';
+      }
+    });
+  }
 
   // No credits modal
   const noCreditsOverlay = document.getElementById('noCreditsOverlay');
-  document.getElementById('noCreditsClose').addEventListener('click', () => {
-    noCreditsOverlay.style.display = 'none';
-  });
-  document.getElementById('noCreditsWatchBtn').addEventListener('click', () => {
-    noCreditsOverlay.style.display = 'none';
-    openAdModal();
-  });
+  const noCreditsClose = document.getElementById('noCreditsClose');
+  const noCreditsWatchBtn = document.getElementById('noCreditsWatchBtn');
+  
+  if (noCreditsClose) {
+    noCreditsClose.addEventListener('click', () => {
+      if (noCreditsOverlay) noCreditsOverlay.style.display = 'none';
+    });
+  }
+  
+  if (noCreditsWatchBtn) {
+    noCreditsWatchBtn.addEventListener('click', () => {
+      if (noCreditsOverlay) noCreditsOverlay.style.display = 'none';
+      openAdModal();
+    });
+  }
 
   // ── Toast ──────────────────────────────────
   function showToast(msg) {
@@ -283,12 +358,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 300); }, 2500);
   }
   window.showToast = showToast;
+
+  console.log('App initialized successfully');
 });
 
 function useChip(el) {
   const input = document.getElementById('messageInput');
+  if (!input) return;
   const text = el.textContent.trim();
-  // Remove the ellipsis and expand
   input.value = text.replace('...', '');
   input.focus();
+  console.log('Chip used:', text);
 }
+
