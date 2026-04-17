@@ -86,9 +86,14 @@ const Chat = (() => {
               if (parsed.credits !== undefined && window.updateCreditsUI) {
                 window.updateCreditsUI(parsed.credits);
               }
-              // Auto-title sidebar
+              // Auto-title sidebar and save session
               const title = text.slice(0, 45) + (text.length > 45 ? '…' : '');
               Sidebar.updateTitle(sessionId, title || 'New Chat');
+              
+              // Reload sidebar to show updated chat in history
+              setTimeout(() => {
+                Sidebar.render();
+              }, 100);
             }
           } catch {}
         }

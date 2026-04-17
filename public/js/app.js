@@ -238,12 +238,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // ── User info click ────────────────────────
-  const userInfoBtn = document.getElementById('userInfoBtn');
-  if (userInfoBtn) {
-    userInfoBtn.addEventListener('click', () => {
-      if (confirm('Sign out?')) {
-        fetch('/auth/logout', { method: 'POST' }).then(() => location.href = '/login');
-      }
+  const logoutBtn = document.getElementById('logoutBtn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      console.log('Logout clicked');
+      await fetch('/auth/logout', { method: 'POST' });
+      location.href = '/login';
     });
   }
 

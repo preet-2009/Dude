@@ -150,10 +150,9 @@ body {
 }
 .user-info {
   display: flex; align-items: center; gap: 10px;
-  padding: 8px; border-radius: 8px; cursor: pointer;
+  padding: 8px; border-radius: 8px;
   transition: background 0.12s;
 }
-.user-info:hover { background: var(--bg3); }
 .user-avatar {
   width: 32px; height: 32px; border-radius: 50%;
   background: var(--grad);
@@ -177,19 +176,6 @@ body {
   font-size: 11px;
   color: var(--text3);
 }
-.upgrade-link-small {
-  display: inline;
-  font-size: 11px; font-weight: 500;
-  color: var(--cyan);
-  background: none;
-  border: none;
-  padding: 0;
-  cursor: pointer;
-  margin-left: 4px;
-}
-.upgrade-link-small:hover {
-  text-decoration: underline;
-}
 
 .credits-badge-small {
   display: inline-flex; align-items: center; gap: 3px;
@@ -201,6 +187,15 @@ body {
 }
 .credits-badge-small svg {
   opacity: 0.7;
+}
+
+.logout-btn { 
+  color: var(--text3) !important; 
+  flex-shrink: 0;
+}
+.logout-btn:hover { 
+  color: #ff5555 !important; 
+  background: rgba(255,85,85,0.08) !important; 
 }
 
 .sidebar-close { display: none; position: absolute; top: 14px; right: 12px; background: none; border: none; color: var(--text2); font-size: 17px; cursor: pointer; }

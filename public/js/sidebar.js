@@ -20,30 +20,33 @@ const Sidebar = (() => {
   let _activeChatId = null;
 
   const chatListEl  = () => document.getElementById('chatList');
-  const chatTitleEl = () => document.getElementById('chatTitle');
 
   async function loadSessions() {
     try {
       const res = await fetch('/api/chat/sessions');
       if (res.ok) sessions = await res.json();
       else sessions = [];
-    } catch { sessions = []; }
+      console.log('Loaded sessions:', sessions);
+    } catch (e) { 
+      console.error('Failed to load sessions:', e);
+      sessions = []; 
+    }
   }
 
   function createNewChat() {
     const id = 'chat_' + Date.now();
     sessions.unshift({ id, title: 'New Chat' });
     _activeChatId = id;
-    chatTitleEl().textContent = 'New Chat';
     render();
+    console.log('Created new chat:', id);
     return id;
   }
 
   function setActiveChat(id) {
     _activeChatId = id;
     const s = sessions.find(s => s.id === id);
-    chatTitleEl().textContent = s ? s.title : 'New Chat';
     render();
+    console.log('Set active chat:', id, s);
   }
 
   function getActiveSession() {
@@ -54,8 +57,8 @@ const Sidebar = (() => {
     const s = sessions.find(s => s.id === id);
     if (s) {
       s.title = title;
-      if (id === _activeChatId) chatTitleEl().textContent = title;
       render();
+      console.log('Updated title for', id, ':', title);
     }
   }
 
@@ -68,7 +71,6 @@ const Sidebar = (() => {
         Chat.loadSession(sessions[0].id);
       } else {
         _activeChatId = null;
-        chatTitleEl().textContent = 'New Chat';
         UI.clearMessages();
       }
     }
@@ -77,6 +79,7 @@ const Sidebar = (() => {
 
   function render() {
     const el = chatListEl();
+    if (!el) return;
     el.innerHTML = '';
     if (sessions.length === 0) {
       el.innerHTML = '<p class="no-chats">No conversations yet</p>';
@@ -112,7 +115,6 @@ const Sidebar = (() => {
     await loadSessions();
     if (sessions.length > 0) {
       _activeChatId = sessions[0].id;
-      chatTitleEl().textContent = sessions[0].title;
     } else {
       createNewChat();
     }
