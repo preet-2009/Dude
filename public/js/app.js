@@ -136,6 +136,37 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // ── Sidebar toggle ─────────────────────────
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebar = document.getElementById('sidebar');
+  const sidebarClose = document.getElementById('sidebarClose');
+  
+  if (sidebarToggle && sidebar) {
+    sidebarToggle.addEventListener('click', () => {
+      // On mobile, toggle 'open' class; on desktop, toggle 'collapsed'
+      if (window.innerWidth <= 768) {
+        sidebar.classList.toggle('open');
+      } else {
+        sidebar.classList.toggle('collapsed');
+      }
+    });
+  }
+  
+  if (sidebarClose && sidebar) {
+    sidebarClose.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+    });
+  }
+
+  // Close sidebar when clicking outside on mobile
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth <= 768 && sidebar && sidebar.classList.contains('open')) {
+      if (!sidebar.contains(e.target) && !sidebarToggle.contains(e.target)) {
+        sidebar.classList.remove('open');
+      }
+    }
+  });
+
   // ── Settings ───────────────────────────────
   const settingsScreen = document.getElementById('settingsScreen');
   const messagesDiv = document.getElementById('messages');
@@ -175,20 +206,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Settings functionality
-  const themeSelect = document.getElementById('themeSelect');
-  if (themeSelect) {
-    const savedTheme = localStorage.getItem('theme') || 'dark';
-    themeSelect.value = savedTheme;
-    document.documentElement.setAttribute('data-theme', savedTheme);
-    
-    themeSelect.addEventListener('change', (e) => {
-      const theme = e.target.value;
-      document.documentElement.setAttribute('data-theme', theme);
-      localStorage.setItem('theme', theme);
-    });
-  }
-
+  // Settings functionality (theme removed)
   // Font size
   const fontSizeSelect = document.getElementById('fontSizeSelect');
   if (fontSizeSelect) {
