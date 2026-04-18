@@ -30,8 +30,17 @@ router.post('/send', async (req, res) => {
   try {
     // Check credits (owner has infinite)
     const isOwner = req.user.email === 'preet.shaileshbhai.desai1@gmail.com';
-    const { rows: userRows } = await pool.query('SELECT credits FROM users WHERE id = $1', [req.user.id]);
-    const credits = userRows[0]?.credits ?? 0;
+    
+    // Try to get credits, default to 100 if column doesn't exist yet
+    let credits = 100;
+    try {
+      const { rows: userRows } = await pool.query('SELECT credits FROM users WHERE id = $1', [req.user.id]);
+      credits = userRows[0]?.credits ?? 100;
+    } catch (creditsErr) {
+      // Column might not exist yet, use default
+      console.log('Credits column not found, using default');
+    }
+    
     if (!isOwner && credits < 5) {
       return res.status(402).json({ error: 'Not enough credits. Watch an ad to earn more!' });
     }
@@ -57,11 +66,16 @@ router.post('/send', async (req, res) => {
     // Deduct 5 credits (skip for owner)
     let remainingCredits = credits;
     if (!isOwner) {
-      const { rows: creditRows } = await pool.query(
-        'UPDATE users SET credits = credits - 5 WHERE id = $1 RETURNING credits',
-        [req.user.id]
-      );
-      remainingCredits = creditRows[0]?.credits ?? 0;
+      try {
+        const { rows: creditRows } = await pool.query(
+          'UPDATE users SET credits = credits - 5 WHERE id = $1 RETURNING credits',
+          [req.user.id]
+        );
+        remainingCredits = creditRows[0]?.credits ?? credits;
+      } catch (creditErr) {
+        // Credits column might not exist yet
+        console.log('Could not update credits:', creditErr.message);
+      }
     }
 
     // Auto-title session from first user message
@@ -152,11 +166,23 @@ router.post('/send', async (req, res) => {
 // ─────────────────────────────────────────────
 router.get('/sessions', async (req, res) => {
   try {
-    const { rows } = await pool.query(
-      `SELECT id, title, created_at FROM chat_sessions WHERE user_id = $1 ORDER BY created_at DESC`,
-      [req.user.id]
-    );
-    res.json(rows);
+    // Try to get all columns, fallback to basic columns if new ones don't exist
+    let query = `SELECT id, title, created_at FROM chat_sessions WHERE user_id = $1 ORDER BY created_at DESC`;
+    
+    try {
+      // Try with new columns
+      query = `SELECT id, title, created_at, folder, tags, is_private, is_pinned, share_token FROM chat_sessions WHERE user_id = $1 ORDER BY created_at DESC`;
+      const { rows } = await pool.query(query, [req.user.id]);
+      res.json(rows);
+    } catch (err) {
+      // Fallback to basic columns
+      console.log('Using basic columns for sessions');
+      const { rows } = await pool.query(
+        `SELECT id, title, created_at FROM chat_sessions WHERE user_id = $1 ORDER BY created_at DESC`,
+        [req.user.id]
+      );
+      res.json(rows);
+    }
   } catch (err) {
     console.error('Sessions error:', err.message);
     res.status(500).json({ error: 'Failed to load sessions' });
