@@ -525,52 +525,6 @@ const Features = (() => {
   // ─────────────────────────────────────────────
   // INITIALIZE
   // ─────────────────────────────────────────────
-  function init() {
-    initVoice();
-    initKeyboardShortcuts();
-    loadTheme();
-  }
-
-  return {
-    init,
-    startVoiceInput,
-    stopVoiceInput,
-    speakText,
-    reactToMessage,
-    pinMessage,
-    loadPinnedMessages,
-    editMessage,
-    searchInChat,
-    setFolder,
-    setTags,
-    getFolders,
-    shareConversation,
-    setPrivateMode,
-    setAutoDelete,
-    pinSession,
-    toggleTheme,
-    loadTheme,
-    exportChat,
-    exportChatPDF,
-    stopGeneration,
-    setCurrentStream,
-    clearCurrentStream,
-    addFiles,
-    removeFile,
-    uploadAllFiles,
-    saveContextMemory,
-    getContextMemory,
-  };
-})();
-
-// Initialize on load
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', Features.init);
-} else {
-  Features.init();
-}
-
-
   // ─────────────────────────────────────────────
   // IMAGE GENERATION
   // ─────────────────────────────────────────────
@@ -653,6 +607,15 @@ if (document.readyState === 'loading') {
     }
   }
 
+  // ─────────────────────────────────────────────
+  // INITIALIZE
+  // ─────────────────────────────────────────────
+  function init() {
+    initVoice();
+    initKeyboardShortcuts();
+    loadTheme();
+  }
+
   return {
     init,
     startVoiceInput,
@@ -682,10 +645,6 @@ if (document.readyState === 'loading') {
     uploadAllFiles,
     saveContextMemory,
     getContextMemory,
-    generateImage,
-    getImageModels,
-    webSearch,
-    searchAndSummarize,
   };
 })();
 
