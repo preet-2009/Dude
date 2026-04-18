@@ -78,6 +78,3 @@ initDB().then(() => {
   console.error('DB init failed:', err.message);
   process.exit(1);
 });
-
-// Export app for Firebase Functions
-module.exports = app;
