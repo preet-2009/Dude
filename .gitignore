@@ -2,3 +2,7 @@ node_modules/
 .env
 uploads/
 *.log
+.firebase/
+.firebaserc
+firebase-debug.log
+firebase-debug.*.log
