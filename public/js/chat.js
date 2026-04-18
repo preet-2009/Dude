@@ -91,7 +91,9 @@ const Chat = (() => {
       let fullText = '';
       const reader = res.body.getReader();
       currentReader = reader;
-      Features.setCurrentStream(reader);
+      if (window.Features && window.Features.setCurrentStream) {
+        window.Features.setCurrentStream(reader);
+      }
       
       const decoder = new TextDecoder();
       let buffer = '';
@@ -138,7 +140,9 @@ const Chat = (() => {
 
       content.classList.remove('typing-cursor');
       currentReader = null;
-      Features.clearCurrentStream();
+      if (window.Features && window.Features.clearCurrentStream) {
+        window.Features.clearCurrentStream();
+      }
 
     } catch (err) {
       UI.removeTypingIndicator();
@@ -152,7 +156,9 @@ const Chat = (() => {
       isLoading = false;
       setInputDisabled(false);
       currentReader = null;
-      Features.clearCurrentStream();
+      if (window.Features && window.Features.clearCurrentStream) {
+        window.Features.clearCurrentStream();
+      }
     }
   }
 
@@ -179,7 +185,11 @@ const Chat = (() => {
     setInputDisabled(true);
 
     try {
-      const result = await Features.generateImage(prompt);
+      if (!window.Features || !window.Features.generateImage) {
+        throw new Error('Image generation not available');
+      }
+      
+      const result = await window.Features.generateImage(prompt);
       UI.removeTypingIndicator();
       
       // Create image attachment
@@ -210,7 +220,11 @@ const Chat = (() => {
     setInputDisabled(true);
 
     try {
-      const result = await Features.searchAndSummarize(query);
+      if (!window.Features || !window.Features.searchAndSummarize) {
+        throw new Error('Web search not available');
+      }
+      
+      const result = await window.Features.searchAndSummarize(query);
       UI.removeTypingIndicator();
       
       // Format search results

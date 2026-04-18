@@ -689,6 +689,9 @@ if (document.readyState === 'loading') {
   };
 })();
 
+// Expose globally
+window.Features = Features;
+
 // Initialize on load
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', Features.init);
