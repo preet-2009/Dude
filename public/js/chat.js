@@ -11,6 +11,12 @@ const Chat = (() => {
     const attachment = pendingAttachment;
     if (!text && !attachment) return;
 
+    // Close history sidebar when starting to chat
+    const historySidebar = document.getElementById('historySidebar');
+    if (historySidebar && historySidebar.classList.contains('open')) {
+      historySidebar.classList.remove('open');
+    }
+
     let sessionId = Sidebar.activeChatId;
     if (!sessionId) sessionId = Sidebar.createNewChat();
 
