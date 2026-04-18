@@ -5,7 +5,8 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
-    "dev": "nodemon server/index.js"
+    "dev": "nodemon server/index.js",
+    "migrate": "node server/migrate.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
