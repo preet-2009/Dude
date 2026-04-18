@@ -1,116 +1,109 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DUDE AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css"/>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
 </head>
 <body>
-
-  <!-- SIDEBAR -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <button class="new-chat-btn" id="newChatBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        New Chat
-      </button>
-    </div>
-
-    <div class="chat-list-label">Recent Chats</div>
-    <div class="chat-list" id="chatList"></div>
-
-    <!-- Sidebar footer: user info -->
-    <div class="sidebar-footer">
-      <button class="nav-item" id="settingsBtn">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/></svg>
-        Settings
-      </button>
-      <div class="user-info">
-        <div class="user-avatar" id="userAvatar">?</div>
-        <div class="user-details">
-          <div class="user-name-row">
-            <span class="user-name" id="userName">Loading…</span>
-            <div class="credits-badge-small" id="creditsBadgeSmall" title="Your credits">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              <span id="creditsCountSmall">—</span>
-            </div>
-          </div>
-          <span class="user-plan">Free</span>
-        </div>
-        <button class="icon-btn logout-btn" id="logoutBtn" title="Sign out">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <button class="sidebar-close" id="sidebarClose">✕</button>
-  </aside>
 
   <!-- MAIN -->
   <main class="main" id="main">
     <header class="topbar">
-      <button class="icon-btn sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
+      <div class="topbar-left">
+        <button class="icon-btn history-btn" id="historyBtn" title="History">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/>
+            <path d="M12 7v5l4 2"/>
+          </svg>
+        </button>
+        <button class="icon-btn settings-btn" id="settingsBtn" title="Settings">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
+          </svg>
+        </button>
+        <button class="icon-btn info-btn" id="helpBtnTop" title="Info">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </button>
+      </div>
 
       <div class="topbar-center">
-        <svg class="logo-svg" width="24" height="24" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg class="robot-logo" width="32" height="32" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <linearGradient id="lg1" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stop-color="#00d4ff"/>
-              <stop offset="100%" stop-color="#0088cc"/>
+            <linearGradient id="flameGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#FF8C42;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#DFFF00;stop-opacity:1" />
             </linearGradient>
           </defs>
-          <path d="M4 6C4 3.79 5.79 2 8 2H28C30.21 2 32 3.79 32 6V22C32 24.21 30.21 26 28 26H20L14 34V26H8C5.79 26 4 24.21 4 22V6Z" fill="url(#lg1)"/>
-          <text x="18" y="19" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="900" font-size="13" fill="#000">D</text>
+          <rect x="12" y="14" width="24" height="20" rx="4" fill="url(#flameGrad)"/>
+          <circle cx="20" cy="22" r="2.5" fill="#080705"/>
+          <circle cx="28" cy="22" r="2.5" fill="#080705"/>
+          <line x1="24" y1="14" x2="24" y2="8" stroke="url(#flameGrad)" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="24" cy="8" r="2" fill="#DFFF00"/>
+          <path d="M 19 28 Q 24 31 29 28" stroke="#080705" stroke-width="2" stroke-linecap="round" fill="none"/>
+          <rect x="16" y="34" width="16" height="8" rx="2" fill="url(#flameGrad)" opacity="0.8"/>
         </svg>
         <span class="topbar-title">DUDE AI</span>
       </div>
 
       <div class="topbar-right">
-        <!-- Credits display with upgrade option -->
         <div class="credits-display" id="creditsDisplay">
           <div class="credits-info">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+            </svg>
             <span id="creditsCountTop">—</span>
             <span class="credits-label">credits</span>
           </div>
           <button class="buy-credits-btn" id="buyCreditsBtn">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <line x1="12" y1="5" x2="12" y2="19"/>
+              <line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
             Buy More
           </button>
         </div>
-
-        <button class="icon-btn help-btn" title="Help" id="helpBtnTop">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        </button>
       </div>
     </header>
 
     <div class="messages" id="messages">
       <div class="welcome" id="welcome">
-        <h2>Hey, <span id="welcomeUserName">Preet</span>. Ready to dive in?</h2>
-        <div class="welcome-suggestions">
-          <button class="suggestion-item" onclick="useChip(this)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-            Tips for healthy me...
-          </button>
-          <button class="suggestion-item" onclick="useChip(this)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-            Plan a weekend trip
-          </button>
-          <button class="suggestion-item" onclick="useChip(this)">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-            Explain quantum c...
-          </button>
+        <div class="welcome-content">
+          <svg class="welcome-robot" width="80" height="80" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="flameGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:#FF6B35;stop-opacity:1" />
+                <stop offset="50%" style="stop-color:#FF8C42;stop-opacity:1" />
+                <stop offset="100%" style="stop-color:#DFFF00;stop-opacity:1" />
+              </linearGradient>
+            </defs>
+            <rect x="12" y="14" width="24" height="20" rx="4" fill="url(#flameGrad2)"/>
+            <circle cx="20" cy="22" r="2.5" fill="#080705"/>
+            <circle cx="28" cy="22" r="2.5" fill="#080705"/>
+            <line x1="24" y1="14" x2="24" y2="8" stroke="url(#flameGrad2)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="24" cy="8" r="2" fill="#DFFF00"/>
+            <path d="M 19 28 Q 24 31 29 28" stroke="#080705" stroke-width="2" stroke-linecap="round" fill="none"/>
+            <rect x="16" y="34" width="16" height="8" rx="2" fill="url(#flameGrad2)" opacity="0.8"/>
+          </svg>
+          <h2>Hey, <span id="welcomeUserName">there</span>!</h2>
+          <p class="welcome-subtitle">What can I help you with today?</p>
         </div>
       </div>
     </div>
 
-    <!-- Settings Screen (hidden by default) -->
+    <!-- Settings Screen -->
     <div class="settings-screen" id="settingsScreen" style="display:none">
       <div class="settings-header">
         <h2>Settings</h2>
@@ -134,69 +127,13 @@
 
         <div class="setting-item">
           <div class="setting-info">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-            <div>
-              <h3>Chat Style</h3>
-              <p>Message bubble style</p>
-            </div>
-          </div>
-          <select id="chatStyleSelect" class="setting-select">
-            <option value="default" selected>Default</option>
-            <option value="compact">Compact</option>
-            <option value="spacious">Spacious</option>
-          </select>
-        </div>
-
-        <div class="setting-item">
-          <div class="setting-info">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-            <div>
-              <h3>Notifications</h3>
-              <p>Enable sound and alerts</p>
-            </div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="notificationsToggle" checked>
-            <span class="toggle-slider"></span>
-          </label>
-        </div>
-
-        <div class="setting-item">
-          <div class="setting-info">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-            <div>
-              <h3>Privacy</h3>
-              <p>Data and privacy settings</p>
-            </div>
-          </div>
-          <button class="setting-btn">Manage</button>
-        </div>
-
-        <div class="setting-item">
-          <div class="setting-info">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-            <div>
-              <h3>Language</h3>
-              <p>Choose your language</p>
-            </div>
-          </div>
-          <select id="languageSelect" class="setting-select">
-            <option value="en" selected>English</option>
-            <option value="es">Español</option>
-            <option value="fr">Français</option>
-            <option value="de">Deutsch</option>
-          </select>
-        </div>
-
-        <div class="setting-item">
-          <div class="setting-info">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
             <div>
-              <h3>Account Settings</h3>
-              <p>Manage your account</p>
+              <h3>Account</h3>
+              <p id="userName">Loading...</p>
             </div>
           </div>
-          <button class="setting-btn">Edit</button>
+          <button class="setting-btn danger" id="logoutBtn">Sign Out</button>
         </div>
 
         <div class="setting-item">
@@ -212,43 +149,49 @@
       </div>
     </div>
 
-    <!-- File preview -->
-    <div class="file-preview-bar" id="filePreviewBar" style="display:none">
-      <div class="file-preview-item" id="filePreviewItem"></div>
-      <button class="icon-btn" id="removeFileBtn">✕</button>
+    <!-- History Sidebar -->
+    <div class="history-sidebar" id="historySidebar" style="display:none">
+      <div class="history-header">
+        <h2>Chat History</h2>
+        <button class="icon-btn" id="closeHistoryBtn">✕</button>
+      </div>
+      <button class="new-chat-btn-history" id="newChatBtn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        New Chat
+      </button>
+      <div class="chat-list" id="chatList"></div>
     </div>
 
-    <!-- Input -->
-    <div class="input-area">
+    <!-- Input Container - Centered when empty -->
+    <div class="input-container" id="inputContainer">
+      <div class="file-preview-bar" id="filePreviewBar" style="display:none">
+        <div class="file-preview-item" id="filePreviewItem"></div>
+        <button class="icon-btn" id="removeFileBtn">✕</button>
+      </div>
+
       <div class="input-box">
         <button class="icon-btn add-btn" title="Add content">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
         </button>
         <textarea id="messageInput" placeholder="Ask me anything..." rows="1" maxlength="8000"></textarea>
         <input type="file" id="fileInput" accept="image/*,.pdf,.txt,.md,.json" hidden/>
-        <button class="icon-btn ai-btn" title="AI Assistant">
-          <svg class="logo-svg" width="24" height="24" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <linearGradient id="lg4" x1="0" y1="0" x2="36" y2="36" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#00d4ff"/>
-                <stop offset="100%" stop-color="#0088cc"/>
-              </linearGradient>
-            </defs>
-            <path d="M4 6C4 3.79 5.79 2 8 2H28C30.21 2 32 3.79 32 6V22C32 24.21 30.21 26 28 26H20L14 34V26H8C5.79 26 4 24.21 4 22V6Z" fill="url(#lg4)"/>
-            <text x="18" y="19" text-anchor="middle" font-family="system-ui,sans-serif" font-weight="900" font-size="13" fill="#000">D</text>
-          </svg>
-        </button>
-        <button class="icon-btn mic-btn" title="Voice input">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-        </button>
         <button class="send-btn" id="sendBtn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="22" y1="2" x2="11" y2="13"/>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+          </svg>
         </button>
       </div>
     </div>
   </main>
 
-  <!-- AD MODAL — shown when user clicks "Watch Ad" -->
+  <!-- AD MODAL -->
   <div class="ad-modal-overlay" id="adModalOverlay" style="display:none">
     <div class="ad-modal">
       <div class="ad-modal-header">
@@ -258,7 +201,7 @@
       <div class="ad-modal-body">
         <div class="ad-placeholder">
           <div class="ad-placeholder-inner">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#DFFF00" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
             <p>Ad opened in a new tab</p>
             <p class="ad-sub">Please wait for the timer to complete, then claim your credits.</p>
           </div>
@@ -280,9 +223,9 @@
         <button class="icon-btn" id="noCreditsClose">✕</button>
       </div>
       <div class="ad-modal-body" style="text-align:center;padding:24px 20px">
-        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#00d4ff" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        <h3 style="margin:14px 0 6px;color:#f0f0f0">You're out of credits</h3>
-        <p style="color:#888;font-size:14px;margin-bottom:20px">Watch a short ad to earn 20 credits and keep chatting.</p>
+        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#DFFF00" stroke-width="1.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <h3 style="margin:14px 0 6px;color:#BFC0C0">You're out of credits</h3>
+        <p style="color:#8a8b8b;font-size:14px;margin-bottom:20px">Watch a short ad to earn 20 credits and keep chatting.</p>
         <button class="btn-claim" id="noCreditsWatchBtn">▶ Watch Ad — Get 20 Credits</button>
       </div>
     </div>
@@ -296,7 +239,7 @@
         <button class="icon-btn" id="deleteConfirmClose">✕</button>
       </div>
       <div class="ad-modal-body" style="text-align:center;padding:24px 20px">
-        <p style="color:#ccc;font-size:15px;margin-bottom:24px">Are you sure you want to delete this chat? This can't be undone.</p>
+        <p style="color:#BFC0C0;font-size:15px;margin-bottom:24px">Are you sure you want to delete this chat? This can't be undone.</p>
         <div style="display:flex;gap:10px;justify-content:center">
           <button class="btn-cancel" id="deleteConfirmNo">Cancel</button>
           <button class="btn-delete" id="deleteConfirmYes">Delete</button>
@@ -325,7 +268,7 @@
             <li><strong>Ask Anything:</strong> Type your question and press Enter or click send</li>
             <li><strong>Upload Files:</strong> Click the + button to attach images or documents</li>
             <li><strong>Copy Responses:</strong> Click the copy button on any AI message</li>
-            <li><strong>View History:</strong> Access past conversations from the sidebar</li>
+            <li><strong>View History:</strong> Access past conversations from the history button</li>
           </ul>
         </div>
 
