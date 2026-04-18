@@ -1,20 +1,20 @@
 /* ── Variables ─────────────────────────────── */
 :root {
-  --bg:         #080705;
-  --bg2:        #0f0d0a;
-  --bg3:        #1a1815;
-  --bg4:        #252320;
+  --bg:         #1a1a1a;
+  --bg2:        #242424;
+  --bg3:        #2e2e2e;
+  --bg4:        #383838;
   --border:     rgba(223,255,0,0.1);
   --border2:    rgba(223,255,0,0.15);
-  --text:       #BFC0C0;
-  --text2:      #8a8b8b;
-  --text3:      #5a5b5b;
+  --text:       #e8e8e8;
+  --text2:      #a8a8a8;
+  --text3:      #6a6a6a;
   --accent:     #DFFF00;
   --accent-dim: rgba(223,255,0,0.08);
   --accent-glow:rgba(223,255,0,0.2);
   --grad:       linear-gradient(135deg, #DFFF00, #c5e600);
-  --user-bubble:#1a1815;
-  --scrollbar:  #2a2825;
+  --user-bubble:#2e2e2e;
+  --scrollbar:  #3a3a3a;
   --radius:     12px;
 }
 
@@ -197,11 +197,19 @@ body {
 .main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
 
 .topbar {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between;
   padding: 12px 20px;
   border-bottom: 1px solid var(--border);
   background: var(--bg);
   height: 56px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .sidebar-toggle {
@@ -306,11 +314,29 @@ body {
   justify-content: center; height: 100%; gap: 32px;
   text-align: center; padding: 40px;
 }
+
+.welcome-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.welcome-robot {
+  filter: drop-shadow(0 4px 12px rgba(223, 255, 0, 0.3));
+}
+
 .welcome h2 { 
   font-size: 32px; font-weight: 300; color: var(--text); 
   letter-spacing: -0.8px;
 }
 .welcome h2 span { font-weight: 500; }
+
+.welcome-subtitle {
+  font-size: 16px;
+  color: var(--text2);
+  font-weight: 400;
+}
 
 .welcome-suggestions {
   display: flex; flex-direction: column; gap: 10px;
@@ -556,6 +582,68 @@ textarea#messageInput::placeholder { color: var(--text3); }
 [data-theme="light"] .moon-icon { display: block; }
 
 /* ── Responsive ────────────────────────────── */
+/* History Sidebar */
+.history-sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 300px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+}
+
+.history-sidebar.open {
+  transform: translateX(0);
+}
+
+.history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.history-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.new-chat-btn-history {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 32px);
+  margin: 16px;
+  padding: 10px 16px;
+  background: var(--grad);
+  border: none;
+  color: #000;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.15s;
+}
+
+.new-chat-btn-history:hover {
+  opacity: 0.85;
+}
+
+.history-sidebar .chat-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 16px;
+}
+
 @media (max-width: 768px) {
   .sidebar { 
     position: fixed; 

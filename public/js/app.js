@@ -182,8 +182,35 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  // ── History button ─────────────────────────
   const historyBtn = document.getElementById('historyBtn');
-  if (historyBtn && settingsScreen && messagesDiv) {
+  const historySidebar = document.getElementById('historySidebar');
+  const closeHistoryBtn = document.getElementById('closeHistoryBtn');
+  
+  if (historyBtn && historySidebar) {
+    historyBtn.addEventListener('click', () => {
+      console.log('History clicked');
+      historySidebar.classList.toggle('open');
+    });
+  }
+  
+  if (closeHistoryBtn && historySidebar) {
+    closeHistoryBtn.addEventListener('click', () => {
+      historySidebar.classList.remove('open');
+    });
+  }
+  
+  // Close history sidebar when clicking outside
+  document.addEventListener('click', (e) => {
+    if (historySidebar && historySidebar.classList.contains('open')) {
+      if (!historySidebar.contains(e.target) && !historyBtn.contains(e.target)) {
+        historySidebar.classList.remove('open');
+      }
+    }
+  });
+
+  const historyBtnOld = document.getElementById('historyBtn');
+  if (historyBtnOld && settingsScreen && messagesDiv) {
     historyBtn.addEventListener('click', () => {
       console.log('History clicked');
       settingsScreen.style.display = 'none';
