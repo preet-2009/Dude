@@ -8,6 +8,9 @@ const { initDB, pool } = require('./db');
 const { passport } = require('./auth');
 const chatRoutes = require('./routes/chat');
 const authRoutes = require('./routes/auth');
+const featuresRoutes = require('./routes/features');
+const exportRoutes = require('./routes/export');
+const aiFeaturesRoutes = require('./routes/ai-features');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,6 +47,9 @@ app.use(passport.session());
 // Routes
 app.use('/auth', authRoutes);
 app.use('/api/chat', requireAuth, chatRoutes);
+app.use('/api/features', requireAuth, featuresRoutes);
+app.use('/api/export', requireAuth, exportRoutes);
+app.use('/api/ai', requireAuth, aiFeaturesRoutes);
 
 // Protect main app — redirect to login if not authenticated
 app.get('/', requireAuthPage, (req, res) => {

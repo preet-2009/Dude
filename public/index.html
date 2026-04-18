@@ -8,7 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/style.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"/>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -21,6 +24,28 @@
             <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
             <path d="M3 3v5h5"/>
             <path d="M12 7v5l4 2"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="searchBtn" title="Search in chat">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="themeToggleBtn" title="Toggle theme">
+          <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="5"/>
+            <line x1="12" y1="1" x2="12" y2="3"/>
+            <line x1="12" y1="21" x2="12" y2="23"/>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+            <line x1="1" y1="12" x2="3" y2="12"/>
+            <line x1="21" y1="12" x2="23" y2="12"/>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+          </svg>
+          <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
           </svg>
         </button>
         <button class="icon-btn settings-btn" id="settingsBtn" title="Settings">
@@ -82,6 +107,17 @@
     </header>
 
     <div class="messages" id="messages">
+      <!-- Search bar (hidden by default) -->
+      <div class="search-bar" id="searchBar" style="display:none">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search messages..." />
+        <button class="icon-btn" id="closeSearchBtn">✕</button>
+      </div>
+      <div class="search-results" id="searchResults" style="display:none"></div>
+      
       <div class="welcome" id="welcome">
         <div class="welcome-content">
           <svg class="welcome-robot" width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(30deg);">
@@ -116,9 +152,31 @@
         <button class="icon-btn" id="closeSettingsBtn">✕</button>
       </div>
       <div class="settings-content">
+        
+        <!-- Avatar Upload -->
         <div class="setting-item">
           <div class="setting-info">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <div>
+              <h3>Profile Picture</h3>
+              <p>Upload custom avatar</p>
+            </div>
+          </div>
+          <button class="setting-btn" id="uploadAvatarBtn">Upload</button>
+          <input type="file" id="avatarInput" accept="image/*" hidden />
+        </div>
+
+        <!-- Font Size -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="4 7 4 4 20 4 20 7"/>
+              <line x1="9" y1="20" x2="15" y2="20"/>
+              <line x1="12" y1="4" x2="12" y2="20"/>
+            </svg>
             <div>
               <h3>Font Size</h3>
               <p>Adjust text size</p>
@@ -131,9 +189,47 @@
           </select>
         </div>
 
+        <!-- Voice Settings -->
         <div class="setting-item">
           <div class="setting-info">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            </svg>
+            <div>
+              <h3>Voice Input</h3>
+              <p>Enable voice commands</p>
+            </div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="voiceToggle">
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+
+        <!-- 2FA -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <div>
+              <h3>Two-Factor Authentication</h3>
+              <p id="2faStatus">Not enabled</p>
+            </div>
+          </div>
+          <button class="setting-btn" id="setup2faBtn">Setup</button>
+        </div>
+
+        <!-- Account -->
+        <div class="setting-item">
+          <div class="setting-info">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
             <div>
               <h3>Account</h3>
               <p id="userName">Loading...</p>
@@ -142,9 +238,14 @@
           <button class="setting-btn danger" id="logoutBtn">Sign Out</button>
         </div>
 
+        <!-- Reset Chat -->
         <div class="setting-item">
           <div class="setting-info">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><polyline points="23 20 23 14 17 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="1 4 1 10 7 10"/>
+              <polyline points="23 20 23 14 17 14"/>
+              <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/>
+            </svg>
             <div>
               <h3>Reset Chat</h3>
               <p>Clear all conversations</p>
@@ -174,6 +275,8 @@
 
     <!-- Input Container - Centered when empty -->
     <div class="input-container" id="inputContainer">
+      <div class="file-preview-list" id="filePreviewList" style="display:none"></div>
+      
       <div class="file-preview-bar" id="filePreviewBar" style="display:none">
         <div class="file-preview-item" id="filePreviewItem"></div>
         <button class="icon-btn" id="removeFileBtn">✕</button>
@@ -186,8 +289,31 @@
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
         </button>
+        <button class="icon-btn" id="imageGenBtn" title="Generate image">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="webSearchBtn" title="Search web">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+            <line x1="11" y1="8" x2="11" y2="14"/>
+            <line x1="8" y1="11" x2="14" y2="11"/>
+          </svg>
+        </button>
+        <button class="icon-btn mic-btn" id="micBtn" title="Voice input">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+            <line x1="12" y1="19" x2="12" y2="23"/>
+            <line x1="8" y1="23" x2="16" y2="23"/>
+          </svg>
+        </button>
         <textarea id="messageInput" placeholder="Ask me anything..." rows="1" maxlength="8000"></textarea>
-        <input type="file" id="fileInput" accept="image/*,.pdf,.txt,.md,.json" hidden/>
+        <input type="file" id="fileInput" accept="image/*,.pdf,.txt,.md,.json" multiple hidden/>
         <button class="send-btn" id="sendBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="22" y1="2" x2="11" y2="13"/>
@@ -274,6 +400,7 @@
             <li><strong>Start a Chat:</strong> Click "New Chat" or type in the input box</li>
             <li><strong>Ask Anything:</strong> Type your question and press Enter or click send</li>
             <li><strong>Upload Files:</strong> Click the + button to attach images or documents</li>
+            <li><strong>Voice Input:</strong> Click the microphone to speak your message</li>
             <li><strong>Copy Responses:</strong> Click the copy button on any AI message</li>
             <li><strong>View History:</strong> Access past conversations from the history button</li>
           </ul>
@@ -297,8 +424,98 @@
     </div>
   </div>
 
+  <!-- 2FA SETUP MODAL -->
+  <div class="ad-modal-overlay" id="twoFAModalOverlay" style="display:none">
+    <div class="ad-modal">
+      <div class="ad-modal-header">
+        <span>🔒 Two-Factor Authentication</span>
+        <button class="icon-btn" id="twoFAModalClose">✕</button>
+      </div>
+      <div class="ad-modal-body" id="twoFAModalBody">
+        <div id="twoFASetup" style="display:none">
+          <p style="color:var(--text2);font-size:14px;margin-bottom:16px">Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.)</p>
+          <div class="qr-code-container">
+            <img id="qrCodeImage" src="" alt="QR Code" />
+            <div class="secret-code" id="secretCode"></div>
+          </div>
+          <div class="verification-input">
+            <input type="text" id="verificationCode" placeholder="Enter 6-digit code" maxlength="6" />
+            <button class="btn-claim" id="verify2FABtn">Verify</button>
+          </div>
+        </div>
+        <div id="twoFADisable" style="display:none;text-align:center">
+          <p style="color:var(--text2);margin-bottom:20px">Are you sure you want to disable two-factor authentication?</p>
+          <button class="btn-delete" id="disable2FABtn">Disable 2FA</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- IMAGE GENERATION MODAL -->
+  <div class="ad-modal-overlay" id="imageGenModal" style="display:none">
+    <div class="ad-modal">
+      <div class="ad-modal-header">
+        <span>🎨 Generate Image</span>
+        <button class="icon-btn" id="imageGenModalClose">✕</button>
+      </div>
+      <div class="ad-modal-body">
+        <p style="color:var(--text2);font-size:14px;margin-bottom:12px">Describe the image you want to create:</p>
+        <textarea id="imagePromptInput" placeholder="A beautiful sunset over mountains..." style="width:100%;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;resize:vertical;min-height:100px;font-family:inherit" maxlength="500"></textarea>
+        <div style="margin:12px 0">
+          <label style="color:var(--text2);font-size:13px;display:block;margin-bottom:6px">Model:</label>
+          <select id="imageModelSelect" class="setting-select" style="width:100%">
+            <option value="stabilityai/stable-diffusion-2-1">Stable Diffusion 2.1 (Best Quality)</option>
+            <option value="runwayml/stable-diffusion-v1-5">Stable Diffusion 1.5 (Fast)</option>
+            <option value="prompthero/openjourney">OpenJourney (Artistic)</option>
+            <option value="CompVis/stable-diffusion-v1-4">Stable Diffusion 1.4 (Classic)</option>
+          </select>
+        </div>
+        <button class="btn-claim" id="generateImageBtn" style="width:100%">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:6px">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+          Generate Image
+        </button>
+        <div id="imageGenLoading" style="display:none;text-align:center;padding:20px">
+          <div class="skeleton" style="width:100%;height:300px;margin-bottom:12px"></div>
+          <p style="color:var(--text2);font-size:13px">Generating your image...</p>
+        </div>
+        <div id="imageGenResult" style="display:none;margin-top:16px">
+          <img id="generatedImage" src="" alt="Generated" style="width:100%;border-radius:8px;margin-bottom:12px" />
+          <button class="setting-btn" id="insertImageBtn" style="width:100%">Insert into Chat</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WEB SEARCH MODAL -->
+  <div class="ad-modal-overlay" id="webSearchModal" style="display:none">
+    <div class="ad-modal" style="max-width:600px">
+      <div class="ad-modal-header">
+        <span>🔍 Web Search</span>
+        <button class="icon-btn" id="webSearchModalClose">✕</button>
+      </div>
+      <div class="ad-modal-body">
+        <div class="search-bar" style="display:flex;margin-bottom:16px">
+          <input type="text" id="webSearchInput" placeholder="Search the web..." style="flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+          <button class="btn-claim" id="performSearchBtn" style="margin-left:8px;padding:10px 20px">Search</button>
+        </div>
+        <div id="webSearchLoading" style="display:none;text-align:center;padding:20px">
+          <div class="skeleton" style="width:100%;height:60px;margin-bottom:12px"></div>
+          <div class="skeleton" style="width:100%;height:60px;margin-bottom:12px"></div>
+          <div class="skeleton" style="width:100%;height:60px"></div>
+          <p style="color:var(--text2);font-size:13px;margin-top:12px">Searching...</p>
+        </div>
+        <div id="webSearchResults" style="max-height:400px;overflow-y:auto"></div>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/ui.js"></script>
   <script src="/js/sidebar.js"></script>
+  <script src="/js/features.js"></script>
   <script src="/js/chat.js"></script>
   <script src="/js/app.js"></script>
 </body>

@@ -406,3 +406,466 @@ function useChip(el) {
   console.log('Chip used:', text);
 }
 
+
+
+  // ── NEW FEATURES INTEGRATION ───────────────
+
+  // Theme toggle
+  const themeToggleBtn = document.getElementById('themeToggleBtn');
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener('click', () => {
+      Features.toggleTheme();
+    });
+  }
+
+  // Search button
+  const searchBtn = document.getElementById('searchBtn');
+  const searchBar = document.getElementById('searchBar');
+  const searchInput = document.getElementById('searchInput');
+  const closeSearchBtn = document.getElementById('closeSearchBtn');
+  const searchResults = document.getElementById('searchResults');
+
+  if (searchBtn && searchBar) {
+    searchBtn.addEventListener('click', () => {
+      searchBar.style.display = 'flex';
+      searchInput.focus();
+    });
+  }
+
+  if (closeSearchBtn && searchBar && searchResults) {
+    closeSearchBtn.addEventListener('click', () => {
+      searchBar.style.display = 'none';
+      searchResults.style.display = 'none';
+      searchInput.value = '';
+    });
+  }
+
+  if (searchInput) {
+    let searchTimeout;
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const query = e.target.value.trim();
+      
+      if (!query) {
+        searchResults.style.display = 'none';
+        return;
+      }
+
+      searchTimeout = setTimeout(async () => {
+        if (!Sidebar.activeChatId) return;
+        const results = await Features.searchInChat(Sidebar.activeChatId, query);
+        
+        if (results.length === 0) {
+          searchResults.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text3)">No results found</div>';
+          searchResults.style.display = 'block';
+          return;
+        }
+
+        searchResults.innerHTML = results.map(msg => `
+          <div class="search-result-item" onclick="document.getElementById('messages').scrollTo({top:0,behavior:'smooth'})">
+            <div class="search-result-role">${msg.role === 'user' ? 'You' : 'DUDE'}</div>
+            <div class="search-result-content">${UI.escapeHtml(msg.content)}</div>
+          </div>
+        `).join('');
+        searchResults.style.display = 'block';
+      }, 300);
+    });
+  }
+
+  // Voice input
+  const micBtn = document.getElementById('micBtn');
+  if (micBtn) {
+    micBtn.addEventListener('click', () => {
+      if (micBtn.classList.contains('recording')) {
+        Features.stopVoiceInput();
+      } else {
+        Features.startVoiceInput();
+      }
+    });
+  }
+
+  // Multi-file upload
+  if (fileInput) {
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        Features.addFiles(e.target.files);
+      }
+    });
+  }
+
+  // Add keyboard shortcuts info to help modal
+  const helpModalBody = document.querySelector('.help-modal-body');
+  if (helpModalBody) {
+    const shortcutsSection = document.createElement('div');
+    shortcutsSection.className = 'help-section';
+    shortcutsSection.innerHTML = `
+      <h3>Keyboard Shortcuts</h3>
+      <div class="shortcuts-list">
+        <div class="shortcut-item">
+          <span class="shortcut-action">New Chat</span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key">K</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-action">Search</span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key">/</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-action">Export Chat</span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key">E</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-action">Toggle Theme</span>
+          <div class="shortcut-keys">
+            <span class="key">Ctrl</span>
+            <span class="key">Shift</span>
+            <span class="key">T</span>
+          </div>
+        </div>
+        <div class="shortcut-item">
+          <span class="shortcut-action">Stop Generation</span>
+          <div class="shortcut-keys">
+            <span class="key">Esc</span>
+          </div>
+        </div>
+      </div>
+    `;
+    helpModalBody.appendChild(shortcutsSection);
+  }
+
+  console.log('All features initialized');
+
+
+  // ── AVATAR UPLOAD ──────────────────────────
+  const uploadAvatarBtn = document.getElementById('uploadAvatarBtn');
+  const avatarInput = document.getElementById('avatarInput');
+
+  if (uploadAvatarBtn && avatarInput) {
+    uploadAvatarBtn.addEventListener('click', () => {
+      avatarInput.click();
+    });
+
+    avatarInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        const base64 = event.target.result;
+        
+        try {
+          const res = await fetch('/api/features/avatar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ avatar: base64 }),
+          });
+
+          if (res.ok) {
+            // Update avatar display
+            const userAvatarEl = document.getElementById('userAvatar');
+            if (userAvatarEl) {
+              userAvatarEl.innerHTML = `<img src="${base64}" alt="avatar"/>`;
+            }
+            showToast('✓ Avatar updated');
+          } else {
+            showToast('⚠ Failed to update avatar');
+          }
+        } catch (err) {
+          console.error('Avatar upload error:', err);
+          showToast('⚠ Upload failed');
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // ── 2FA SETUP ──────────────────────────────
+  const setup2faBtn = document.getElementById('setup2faBtn');
+  const twoFAModal = document.getElementById('twoFAModalOverlay');
+  const twoFAModalClose = document.getElementById('twoFAModalClose');
+  const twoFASetup = document.getElementById('twoFASetup');
+  const twoFADisable = document.getElementById('twoFADisable');
+  const verify2FABtn = document.getElementById('verify2FABtn');
+  const disable2FABtn = document.getElementById('disable2FABtn');
+  const qrCodeImage = document.getElementById('qrCodeImage');
+  const secretCode = document.getElementById('secretCode');
+  const verificationCode = document.getElementById('verificationCode');
+
+  if (setup2faBtn && twoFAModal) {
+    setup2faBtn.addEventListener('click', async () => {
+      twoFAModal.style.display = 'flex';
+      
+      // Check if 2FA is already enabled
+      try {
+        const res = await fetch('/auth/me');
+        const { user } = await res.json();
+        
+        if (user.two_fa_enabled) {
+          twoFASetup.style.display = 'none';
+          twoFADisable.style.display = 'block';
+        } else {
+          // Setup new 2FA
+          const setupRes = await fetch('/api/features/2fa/setup', { method: 'POST' });
+          const data = await setupRes.json();
+          
+          qrCodeImage.src = data.qrCode;
+          secretCode.textContent = data.secret;
+          
+          twoFASetup.style.display = 'block';
+          twoFADisable.style.display = 'none';
+        }
+      } catch (err) {
+        console.error('2FA setup error:', err);
+        showToast('⚠ Failed to setup 2FA');
+        twoFAModal.style.display = 'none';
+      }
+    });
+  }
+
+  if (twoFAModalClose) {
+    twoFAModalClose.addEventListener('click', () => {
+      twoFAModal.style.display = 'none';
+      verificationCode.value = '';
+    });
+  }
+
+  if (verify2FABtn && verificationCode) {
+    verify2FABtn.addEventListener('click', async () => {
+      const code = verificationCode.value.trim();
+      if (code.length !== 6) {
+        showToast('⚠ Enter 6-digit code');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/features/2fa/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: code }),
+        });
+
+        if (res.ok) {
+          showToast('✓ 2FA enabled successfully');
+          twoFAModal.style.display = 'none';
+          document.getElementById('2faStatus').textContent = 'Enabled';
+          setup2faBtn.textContent = 'Disable';
+        } else {
+          showToast('⚠ Invalid code');
+        }
+      } catch (err) {
+        console.error('2FA verify error:', err);
+        showToast('⚠ Verification failed');
+      }
+    });
+  }
+
+  if (disable2FABtn) {
+    disable2FABtn.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/features/2fa/disable', { method: 'POST' });
+        if (res.ok) {
+          showToast('✓ 2FA disabled');
+          twoFAModal.style.display = 'none';
+          document.getElementById('2faStatus').textContent = 'Not enabled';
+          setup2faBtn.textContent = 'Setup';
+        }
+      } catch (err) {
+        console.error('2FA disable error:', err);
+        showToast('⚠ Failed to disable 2FA');
+      }
+    });
+  }
+
+  console.log('All settings features initialized');
+
+
+  // ── IMAGE GENERATION ───────────────────────
+  const imageGenBtn = document.getElementById('imageGenBtn');
+  const imageGenModal = document.getElementById('imageGenModal');
+  const imageGenModalClose = document.getElementById('imageGenModalClose');
+  const imagePromptInput = document.getElementById('imagePromptInput');
+  const imageModelSelect = document.getElementById('imageModelSelect');
+  const generateImageBtn = document.getElementById('generateImageBtn');
+  const imageGenLoading = document.getElementById('imageGenLoading');
+  const imageGenResult = document.getElementById('imageGenResult');
+  const generatedImage = document.getElementById('generatedImage');
+  const insertImageBtn = document.getElementById('insertImageBtn');
+
+  let currentGeneratedImage = null;
+
+  if (imageGenBtn && imageGenModal) {
+    imageGenBtn.addEventListener('click', () => {
+      imageGenModal.style.display = 'flex';
+      imagePromptInput.value = '';
+      imageGenResult.style.display = 'none';
+      imageGenLoading.style.display = 'none';
+    });
+  }
+
+  if (imageGenModalClose) {
+    imageGenModalClose.addEventListener('click', () => {
+      imageGenModal.style.display = 'none';
+    });
+  }
+
+  if (generateImageBtn && imagePromptInput) {
+    generateImageBtn.addEventListener('click', async () => {
+      const prompt = imagePromptInput.value.trim();
+      if (!prompt) {
+        showToast('⚠ Please enter a prompt');
+        return;
+      }
+
+      const model = imageModelSelect.value;
+      
+      imageGenLoading.style.display = 'block';
+      imageGenResult.style.display = 'none';
+      generateImageBtn.disabled = true;
+
+      try {
+        const result = await Features.generateImage(prompt, model);
+        
+        currentGeneratedImage = result.imageUrl;
+        generatedImage.src = result.imageUrl;
+        
+        imageGenLoading.style.display = 'none';
+        imageGenResult.style.display = 'block';
+        
+        showToast('✓ Image generated!');
+      } catch (err) {
+        imageGenLoading.style.display = 'none';
+        showToast('⚠ ' + err.message);
+      } finally {
+        generateImageBtn.disabled = false;
+      }
+    });
+  }
+
+  if (insertImageBtn) {
+    insertImageBtn.addEventListener('click', () => {
+      if (currentGeneratedImage) {
+        // Add image to message
+        const messageText = imagePromptInput.value.trim();
+        imageGenModal.style.display = 'none';
+        
+        // Create image attachment
+        const attachment = {
+          type: 'image',
+          content: currentGeneratedImage,
+          filename: 'generated-image.png'
+        };
+        
+        // Send message with image
+        UI.appendUserMessage(messageText, attachment);
+        Chat.sendMessage(`I generated this image: ${messageText}`);
+        
+        showToast('✓ Image inserted');
+      }
+    });
+  }
+
+  // ── WEB SEARCH ─────────────────────────────
+  const webSearchBtn = document.getElementById('webSearchBtn');
+  const webSearchModal = document.getElementById('webSearchModal');
+  const webSearchModalClose = document.getElementById('webSearchModalClose');
+  const webSearchInput = document.getElementById('webSearchInput');
+  const performSearchBtn = document.getElementById('performSearchBtn');
+  const webSearchLoading = document.getElementById('webSearchLoading');
+  const webSearchResults = document.getElementById('webSearchResults');
+
+  if (webSearchBtn && webSearchModal) {
+    webSearchBtn.addEventListener('click', () => {
+      webSearchModal.style.display = 'flex';
+      webSearchInput.value = '';
+      webSearchResults.innerHTML = '';
+    });
+  }
+
+  if (webSearchModalClose) {
+    webSearchModalClose.addEventListener('click', () => {
+      webSearchModal.style.display = 'none';
+    });
+  }
+
+  if (performSearchBtn && webSearchInput) {
+    const doSearch = async () => {
+      const query = webSearchInput.value.trim();
+      if (!query) {
+        showToast('⚠ Please enter a search query');
+        return;
+      }
+
+      webSearchLoading.style.display = 'block';
+      webSearchResults.innerHTML = '';
+      performSearchBtn.disabled = true;
+
+      try {
+        const result = await Features.searchAndSummarize(query);
+        
+        webSearchLoading.style.display = 'none';
+        
+        // Display summary
+        webSearchResults.innerHTML = `
+          <div style="background:var(--bg3);padding:16px;border-radius:8px;margin-bottom:16px">
+            <h3 style="color:var(--text);font-size:15px;font-weight:600;margin-bottom:8px">Summary</h3>
+            <div style="color:var(--text2);font-size:14px;line-height:1.6">${marked.parse(result.summary)}</div>
+          </div>
+          <h3 style="color:var(--text);font-size:14px;font-weight:600;margin-bottom:12px">Sources</h3>
+        `;
+        
+        // Display sources
+        result.sources.forEach((source, idx) => {
+          const sourceEl = document.createElement('div');
+          sourceEl.className = 'search-result-item';
+          sourceEl.style.cssText = 'padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;cursor:pointer';
+          sourceEl.innerHTML = `
+            <div style="font-size:11px;color:var(--text3);margin-bottom:4px">[${idx + 1}] ${source.link}</div>
+            <div style="font-size:14px;color:var(--text);font-weight:600;margin-bottom:4px">${UI.escapeHtml(source.title)}</div>
+            <div style="font-size:13px;color:var(--text2)">${UI.escapeHtml(source.snippet)}</div>
+          `;
+          sourceEl.onclick = () => window.open(source.link, '_blank');
+          webSearchResults.appendChild(sourceEl);
+        });
+
+        // Add button to insert into chat
+        const insertBtn = document.createElement('button');
+        insertBtn.className = 'btn-claim';
+        insertBtn.style.cssText = 'width:100%;margin-top:12px';
+        insertBtn.textContent = 'Insert Summary into Chat';
+        insertBtn.onclick = () => {
+          webSearchModal.style.display = 'none';
+          
+          // Format message with sources
+          let message = `I searched for: "${query}"\n\n${result.summary}\n\n**Sources:**\n`;
+          result.sources.forEach((s, i) => {
+            message += `[${i + 1}] ${s.title} - ${s.link}\n`;
+          });
+          
+          document.getElementById('messageInput').value = message;
+          showToast('✓ Search results inserted');
+        };
+        webSearchResults.appendChild(insertBtn);
+        
+      } catch (err) {
+        webSearchLoading.style.display = 'none';
+        webSearchResults.innerHTML = `<p style="color:#ff5555;text-align:center;padding:20px">⚠ ${err.message}</p>`;
+      } finally {
+        performSearchBtn.disabled = false;
+      }
+    };
+
+    performSearchBtn.addEventListener('click', doSearch);
+    webSearchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') doSearch();
+    });
+  }
+
+  console.log('Image generation and web search initialized');

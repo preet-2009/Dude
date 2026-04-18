@@ -4,12 +4,14 @@
 const Chat = (() => {
   let pendingAttachment = null;
   let isLoading = false;
+  let lastUserMessage = null;
+  let currentReader = null;
 
-  async function sendMessage(userText) {
+  async function sendMessage(userText, isRegenerate = false) {
     if (isLoading) return;
     const text = (userText || '').trim();
     const attachment = pendingAttachment;
-    if (!text && !attachment) return;
+    if (!text && !attachment && !isRegenerate) return;
 
     // Close history sidebar when starting to chat
     const historySidebar = document.getElementById('historySidebar');
@@ -22,10 +24,13 @@ const Chat = (() => {
     let sessionId = Sidebar.activeChatId;
     if (!sessionId) sessionId = Sidebar.createNewChat();
 
-    pendingAttachment = null;
-    clearFilePreview();
+    if (!isRegenerate) {
+      lastUserMessage = { text, attachment };
+      pendingAttachment = null;
+      clearFilePreview();
+      UI.appendUserMessage(text, attachment);
+    }
 
-    UI.appendUserMessage(text, attachment);
     UI.showTypingIndicator();
     isLoading = true;
     setInputDisabled(true);
@@ -64,6 +69,9 @@ const Chat = (() => {
 
       let fullText = '';
       const reader = res.body.getReader();
+      currentReader = reader;
+      Features.setCurrentStream(reader);
+      
       const decoder = new TextDecoder();
       let buffer = '';
 
@@ -84,8 +92,8 @@ const Chat = (() => {
 
             if (parsed.token) {
               fullText += parsed.token;
-              // Render markdown progressively
-              content.innerHTML = marked.parse(fullText);
+              // Render markdown progressively with code highlighting
+              content.innerHTML = UI.enhanceCodeBlocks(marked.parse(fullText));
               UI.scrollToBottom();
             }
 
@@ -108,16 +116,42 @@ const Chat = (() => {
       }
 
       content.classList.remove('typing-cursor');
+      currentReader = null;
+      Features.clearCurrentStream();
 
     } catch (err) {
       UI.removeTypingIndicator();
-      showError('Network error — is the server running?');
-      console.error(err);
+      if (err.name === 'AbortError') {
+        showError('Generation stopped');
+      } else {
+        showError('Network error — is the server running?');
+        console.error(err);
+      }
     } finally {
       isLoading = false;
       setInputDisabled(false);
+      currentReader = null;
+      Features.clearCurrentStream();
     }
   }
+
+  function regenerateLastResponse() {
+    if (!lastUserMessage) {
+      window.showToast('No message to regenerate');
+      return;
+    }
+    
+    // Remove last AI message
+    const messages = document.querySelectorAll('.message-row.ai');
+    if (messages.length > 0) {
+      messages[messages.length - 1].remove();
+    }
+    
+    sendMessage(lastUserMessage.text, true);
+  }
+
+  // Expose regenerate function globally
+  window.regenerateLastResponse = regenerateLastResponse;
 
   async function loadSession(sessionId) {
     if (!sessionId) return;
@@ -176,5 +210,5 @@ const Chat = (() => {
     document.getElementById('sendBtn').disabled = v;
   }
 
-  return { sendMessage, uploadFile, loadSession, clearFilePreview };
+  return { sendMessage, uploadFile, loadSession, clearFilePreview, regenerateLastResponse };
 })();
