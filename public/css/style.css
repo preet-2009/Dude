@@ -596,10 +596,26 @@ textarea#messageInput::placeholder { color: var(--text3); }
   z-index: 200;
   display: flex;
   flex-direction: column;
+  box-shadow: 4px 0 24px rgba(0,0,0,0.5);
 }
 
 .history-sidebar.open {
   transform: translateX(0);
+}
+
+.history-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 199;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+.history-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .history-header {

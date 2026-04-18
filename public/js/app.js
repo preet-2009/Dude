@@ -185,39 +185,29 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ── History button ─────────────────────────
   const historyBtn = document.getElementById('historyBtn');
   const historySidebar = document.getElementById('historySidebar');
+  const historyOverlay = document.getElementById('historyOverlay');
   const closeHistoryBtn = document.getElementById('closeHistoryBtn');
   
-  if (historyBtn && historySidebar) {
+  if (historyBtn && historySidebar && historyOverlay) {
     historyBtn.addEventListener('click', () => {
       console.log('History clicked');
       historySidebar.classList.toggle('open');
+      historyOverlay.classList.toggle('show');
     });
   }
   
-  if (closeHistoryBtn && historySidebar) {
+  if (closeHistoryBtn && historySidebar && historyOverlay) {
     closeHistoryBtn.addEventListener('click', () => {
       historySidebar.classList.remove('open');
+      historyOverlay.classList.remove('show');
     });
   }
   
-  // Close history sidebar when clicking outside
-  document.addEventListener('click', (e) => {
-    if (historySidebar && historySidebar.classList.contains('open')) {
-      if (!historySidebar.contains(e.target) && !historyBtn.contains(e.target)) {
-        historySidebar.classList.remove('open');
-      }
-    }
-  });
-
-  const historyBtnOld = document.getElementById('historyBtn');
-  if (historyBtnOld && settingsScreen && messagesDiv) {
-    historyBtn.addEventListener('click', () => {
-      console.log('History clicked');
-      settingsScreen.style.display = 'none';
-      messagesDiv.style.display = 'block';
-      if (welcomeDiv && messagesDiv.querySelectorAll('.message-row').length === 0) {
-        welcomeDiv.style.display = 'flex';
-      }
+  // Close history sidebar when clicking overlay
+  if (historyOverlay && historySidebar) {
+    historyOverlay.addEventListener('click', () => {
+      historySidebar.classList.remove('open');
+      historyOverlay.classList.remove('show');
     });
   }
 

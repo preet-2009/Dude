@@ -13,8 +13,10 @@ const Chat = (() => {
 
     // Close history sidebar when starting to chat
     const historySidebar = document.getElementById('historySidebar');
+    const historyOverlay = document.getElementById('historyOverlay');
     if (historySidebar && historySidebar.classList.contains('open')) {
       historySidebar.classList.remove('open');
+      if (historyOverlay) historyOverlay.classList.remove('show');
     }
 
     let sessionId = Sidebar.activeChatId;
