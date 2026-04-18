@@ -451,68 +451,6 @@
     </div>
   </div>
 
-  <!-- IMAGE GENERATION MODAL -->
-  <div class="ad-modal-overlay" id="imageGenModal" style="display:none">
-    <div class="ad-modal">
-      <div class="ad-modal-header">
-        <span>🎨 Generate Image</span>
-        <button class="icon-btn" id="imageGenModalClose">✕</button>
-      </div>
-      <div class="ad-modal-body">
-        <p style="color:var(--text2);font-size:14px;margin-bottom:12px">Describe the image you want to create:</p>
-        <textarea id="imagePromptInput" placeholder="A beautiful sunset over mountains..." style="width:100%;padding:12px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px;resize:vertical;min-height:100px;font-family:inherit" maxlength="500"></textarea>
-        <div style="margin:12px 0">
-          <label style="color:var(--text2);font-size:13px;display:block;margin-bottom:6px">Model:</label>
-          <select id="imageModelSelect" class="setting-select" style="width:100%">
-            <option value="stabilityai/stable-diffusion-2-1">Stable Diffusion 2.1 (Best Quality)</option>
-            <option value="runwayml/stable-diffusion-v1-5">Stable Diffusion 1.5 (Fast)</option>
-            <option value="prompthero/openjourney">OpenJourney (Artistic)</option>
-            <option value="CompVis/stable-diffusion-v1-4">Stable Diffusion 1.4 (Classic)</option>
-          </select>
-        </div>
-        <button class="btn-claim" id="generateImageBtn" style="width:100%">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:6px">
-            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-            <circle cx="8.5" cy="8.5" r="1.5"/>
-            <polyline points="21 15 16 10 5 21"/>
-          </svg>
-          Generate Image
-        </button>
-        <div id="imageGenLoading" style="display:none;text-align:center;padding:20px">
-          <div class="skeleton" style="width:100%;height:300px;margin-bottom:12px"></div>
-          <p style="color:var(--text2);font-size:13px">Generating your image...</p>
-        </div>
-        <div id="imageGenResult" style="display:none;margin-top:16px">
-          <img id="generatedImage" src="" alt="Generated" style="width:100%;border-radius:8px;margin-bottom:12px" />
-          <button class="setting-btn" id="insertImageBtn" style="width:100%">Insert into Chat</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- WEB SEARCH MODAL -->
-  <div class="ad-modal-overlay" id="webSearchModal" style="display:none">
-    <div class="ad-modal" style="max-width:600px">
-      <div class="ad-modal-header">
-        <span>🔍 Web Search</span>
-        <button class="icon-btn" id="webSearchModalClose">✕</button>
-      </div>
-      <div class="ad-modal-body">
-        <div class="search-bar" style="display:flex;margin-bottom:16px">
-          <input type="text" id="webSearchInput" placeholder="Search the web..." style="flex:1;padding:10px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
-          <button class="btn-claim" id="performSearchBtn" style="margin-left:8px;padding:10px 20px">Search</button>
-        </div>
-        <div id="webSearchLoading" style="display:none;text-align:center;padding:20px">
-          <div class="skeleton" style="width:100%;height:60px;margin-bottom:12px"></div>
-          <div class="skeleton" style="width:100%;height:60px;margin-bottom:12px"></div>
-          <div class="skeleton" style="width:100%;height:60px"></div>
-          <p style="color:var(--text2);font-size:13px;margin-top:12px">Searching...</p>
-        </div>
-        <div id="webSearchResults" style="max-height:400px;overflow-y:auto"></div>
-      </div>
-    </div>
-  </div>
-
   <script src="/js/ui.js"></script>
   <script src="/js/sidebar.js"></script>
   <script src="/js/features.js"></script>

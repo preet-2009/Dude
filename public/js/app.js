@@ -689,182 +689,25 @@ function useChip(el) {
 
   // ── IMAGE GENERATION ───────────────────────
   const imageGenBtn = document.getElementById('imageGenBtn');
-  const imageGenModal = document.getElementById('imageGenModal');
-  const imageGenModalClose = document.getElementById('imageGenModalClose');
-  const imagePromptInput = document.getElementById('imagePromptInput');
-  const imageModelSelect = document.getElementById('imageModelSelect');
-  const generateImageBtn = document.getElementById('generateImageBtn');
-  const imageGenLoading = document.getElementById('imageGenLoading');
-  const imageGenResult = document.getElementById('imageGenResult');
-  const generatedImage = document.getElementById('generatedImage');
-  const insertImageBtn = document.getElementById('insertImageBtn');
 
-  let currentGeneratedImage = null;
-
-  if (imageGenBtn && imageGenModal) {
+  if (imageGenBtn) {
     imageGenBtn.addEventListener('click', () => {
-      imageGenModal.style.display = 'flex';
-      imagePromptInput.value = '';
-      imageGenResult.style.display = 'none';
-      imageGenLoading.style.display = 'none';
-    });
-  }
-
-  if (imageGenModalClose) {
-    imageGenModalClose.addEventListener('click', () => {
-      imageGenModal.style.display = 'none';
-    });
-  }
-
-  if (generateImageBtn && imagePromptInput) {
-    generateImageBtn.addEventListener('click', async () => {
-      const prompt = imagePromptInput.value.trim();
-      if (!prompt) {
-        showToast('⚠ Please enter a prompt');
-        return;
-      }
-
-      const model = imageModelSelect.value;
-      
-      imageGenLoading.style.display = 'block';
-      imageGenResult.style.display = 'none';
-      generateImageBtn.disabled = true;
-
-      try {
-        const result = await Features.generateImage(prompt, model);
-        
-        currentGeneratedImage = result.imageUrl;
-        generatedImage.src = result.imageUrl;
-        
-        imageGenLoading.style.display = 'none';
-        imageGenResult.style.display = 'block';
-        
-        showToast('✓ Image generated!');
-      } catch (err) {
-        imageGenLoading.style.display = 'none';
-        showToast('⚠ ' + err.message);
-      } finally {
-        generateImageBtn.disabled = false;
-      }
-    });
-  }
-
-  if (insertImageBtn) {
-    insertImageBtn.addEventListener('click', () => {
-      if (currentGeneratedImage) {
-        // Add image to message
-        const messageText = imagePromptInput.value.trim();
-        imageGenModal.style.display = 'none';
-        
-        // Create image attachment
-        const attachment = {
-          type: 'image',
-          content: currentGeneratedImage,
-          filename: 'generated-image.png'
-        };
-        
-        // Send message with image
-        UI.appendUserMessage(messageText, attachment);
-        Chat.sendMessage(`I generated this image: ${messageText}`);
-        
-        showToast('✓ Image inserted');
-      }
+      const input = document.getElementById('messageInput');
+      input.value = '/image ';
+      input.focus();
+      showToast('💡 Type your image prompt after /image');
     });
   }
 
   // ── WEB SEARCH ─────────────────────────────
   const webSearchBtn = document.getElementById('webSearchBtn');
-  const webSearchModal = document.getElementById('webSearchModal');
-  const webSearchModalClose = document.getElementById('webSearchModalClose');
-  const webSearchInput = document.getElementById('webSearchInput');
-  const performSearchBtn = document.getElementById('performSearchBtn');
-  const webSearchLoading = document.getElementById('webSearchLoading');
-  const webSearchResults = document.getElementById('webSearchResults');
 
-  if (webSearchBtn && webSearchModal) {
+  if (webSearchBtn) {
     webSearchBtn.addEventListener('click', () => {
-      webSearchModal.style.display = 'flex';
-      webSearchInput.value = '';
-      webSearchResults.innerHTML = '';
-    });
-  }
-
-  if (webSearchModalClose) {
-    webSearchModalClose.addEventListener('click', () => {
-      webSearchModal.style.display = 'none';
-    });
-  }
-
-  if (performSearchBtn && webSearchInput) {
-    const doSearch = async () => {
-      const query = webSearchInput.value.trim();
-      if (!query) {
-        showToast('⚠ Please enter a search query');
-        return;
-      }
-
-      webSearchLoading.style.display = 'block';
-      webSearchResults.innerHTML = '';
-      performSearchBtn.disabled = true;
-
-      try {
-        const result = await Features.searchAndSummarize(query);
-        
-        webSearchLoading.style.display = 'none';
-        
-        // Display summary
-        webSearchResults.innerHTML = `
-          <div style="background:var(--bg3);padding:16px;border-radius:8px;margin-bottom:16px">
-            <h3 style="color:var(--text);font-size:15px;font-weight:600;margin-bottom:8px">Summary</h3>
-            <div style="color:var(--text2);font-size:14px;line-height:1.6">${marked.parse(result.summary)}</div>
-          </div>
-          <h3 style="color:var(--text);font-size:14px;font-weight:600;margin-bottom:12px">Sources</h3>
-        `;
-        
-        // Display sources
-        result.sources.forEach((source, idx) => {
-          const sourceEl = document.createElement('div');
-          sourceEl.className = 'search-result-item';
-          sourceEl.style.cssText = 'padding:12px;background:var(--bg3);border-radius:8px;margin-bottom:8px;cursor:pointer';
-          sourceEl.innerHTML = `
-            <div style="font-size:11px;color:var(--text3);margin-bottom:4px">[${idx + 1}] ${source.link}</div>
-            <div style="font-size:14px;color:var(--text);font-weight:600;margin-bottom:4px">${UI.escapeHtml(source.title)}</div>
-            <div style="font-size:13px;color:var(--text2)">${UI.escapeHtml(source.snippet)}</div>
-          `;
-          sourceEl.onclick = () => window.open(source.link, '_blank');
-          webSearchResults.appendChild(sourceEl);
-        });
-
-        // Add button to insert into chat
-        const insertBtn = document.createElement('button');
-        insertBtn.className = 'btn-claim';
-        insertBtn.style.cssText = 'width:100%;margin-top:12px';
-        insertBtn.textContent = 'Insert Summary into Chat';
-        insertBtn.onclick = () => {
-          webSearchModal.style.display = 'none';
-          
-          // Format message with sources
-          let message = `I searched for: "${query}"\n\n${result.summary}\n\n**Sources:**\n`;
-          result.sources.forEach((s, i) => {
-            message += `[${i + 1}] ${s.title} - ${s.link}\n`;
-          });
-          
-          document.getElementById('messageInput').value = message;
-          showToast('✓ Search results inserted');
-        };
-        webSearchResults.appendChild(insertBtn);
-        
-      } catch (err) {
-        webSearchLoading.style.display = 'none';
-        webSearchResults.innerHTML = `<p style="color:#ff5555;text-align:center;padding:20px">⚠ ${err.message}</p>`;
-      } finally {
-        performSearchBtn.disabled = false;
-      }
-    };
-
-    performSearchBtn.addEventListener('click', doSearch);
-    webSearchInput.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') doSearch();
+      const input = document.getElementById('messageInput');
+      input.value = '/search ';
+      input.focus();
+      showToast('💡 Type your search query after /search');
     });
   }
 

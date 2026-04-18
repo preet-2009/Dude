@@ -51,6 +51,20 @@ app.use('/api/features', requireAuth, featuresRoutes);
 app.use('/api/export', requireAuth, exportRoutes);
 app.use('/api/ai', requireAuth, aiFeaturesRoutes);
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    features: {
+      database: 'connected',
+      ai: process.env.GROQ_API_KEY ? 'configured' : 'missing',
+      imageGen: process.env.HUGGINGFACE_API_KEY ? 'configured' : 'missing',
+      webSearch: process.env.GOOGLE_SEARCH_KEY ? 'configured' : 'missing'
+    }
+  });
+});
+
 // Protect main app — redirect to login if not authenticated
 app.get('/', requireAuthPage, (req, res) => {
   res.sendFile(path.join(__dirname, '../public/index.html'));
