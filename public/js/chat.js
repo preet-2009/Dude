@@ -180,7 +180,31 @@ const Chat = (() => {
   // Handle image generation command
   async function handleImageGeneration(prompt) {
     UI.appendUserMessage(`/image ${prompt}`);
-    UI.showTypingIndicator();
+    
+    // Show custom image generation loading animation
+    const { messageDiv, content } = UI.appendAIMessage();
+    content.innerHTML = `
+      <div class="image-generating">
+        <div class="image-gen-spinner">
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <div class="spinner-ring"></div>
+          <svg class="spinner-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+            <circle cx="8.5" cy="8.5" r="1.5"/>
+            <polyline points="21 15 16 10 5 21"/>
+          </svg>
+        </div>
+        <p class="image-gen-text">
+          <span class="gen-text-animated">Generating your image with DALL-E 3</span>
+          <span class="gen-dots">
+            <span>.</span><span>.</span><span>.</span>
+          </span>
+        </p>
+        <p class="image-gen-subtext">This may take 10-15 seconds</p>
+      </div>
+    `;
+    
     isLoading = true;
     setInputDisabled(true);
 
@@ -190,21 +214,33 @@ const Chat = (() => {
       }
       
       const result = await window.Features.generateImage(prompt);
-      UI.removeTypingIndicator();
       
-      // Create image attachment
-      const attachment = {
-        type: 'image',
-        content: result.imageUrl,
-        filename: 'generated-image.png'
-      };
+      // Replace loading animation with the generated image
+      content.innerHTML = `
+        <div class="generated-image-container">
+          <p style="margin-bottom: 12px; color: var(--text2);">
+            <strong>✨ Generated Image</strong>
+          </p>
+          <img src="${result.imageUrl}" 
+               class="chat-image generated-image" 
+               alt="Generated: ${UI.escapeHtml(prompt)}" 
+               style="max-width: 100%; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); cursor: pointer;"
+               onclick="window.open(this.src, '_blank')"
+          />
+          ${result.revisedPrompt ? `
+            <p style="margin-top: 8px; font-size: 12px; color: var(--text3); font-style: italic;">
+              Enhanced prompt: ${UI.escapeHtml(result.revisedPrompt)}
+            </p>
+          ` : ''}
+          <p style="margin-top: 8px; font-size: 11px; color: var(--text3);">
+            Model: ${result.model || 'DALL-E 3'} • Click image to view full size
+          </p>
+        </div>
+      `;
       
-      const { content } = UI.appendAIMessage();
-      content.innerHTML = `<p>Here's your generated image:</p><img src="${result.imageUrl}" class="chat-image" alt="Generated image" style="max-width:400px;border-radius:8px;margin-top:8px" />`;
-      
-      window.showToast('✓ Image generated!');
+      window.showToast('✓ Image generated successfully!');
     } catch (err) {
-      UI.removeTypingIndicator();
+      content.innerHTML = `<p style="color: var(--error);">❌ Failed to generate image: ${UI.escapeHtml(err.message)}</p>`;
       showError('Failed to generate image: ' + err.message);
     } finally {
       isLoading = false;
