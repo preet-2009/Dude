@@ -645,6 +645,10 @@ const Features = (() => {
     uploadAllFiles,
     saveContextMemory,
     getContextMemory,
+    generateImage,
+    getImageModels,
+    webSearch,
+    searchAndSummarize,
   };
 })();
 

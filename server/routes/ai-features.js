@@ -12,6 +12,12 @@ router.post('/generate-image', async (req, res) => {
     return res.status(400).json({ error: 'Prompt is required' });
   }
 
+  if (!process.env.HUGGINGFACE_API_KEY) {
+    return res.status(503).json({ 
+      error: 'Image generation not configured. Please add HUGGINGFACE_API_KEY to .env file' 
+    });
+  }
+
   try {
     const selectedModel = model || 'stabilityai/stable-diffusion-2-1';
     
@@ -110,6 +116,12 @@ router.post('/web-search', async (req, res) => {
     return res.status(400).json({ error: 'Query is required' });
   }
 
+  if (!process.env.GOOGLE_SEARCH_KEY || !process.env.GOOGLE_SEARCH_CX) {
+    return res.status(503).json({ 
+      error: 'Web search not configured. Please add GOOGLE_SEARCH_KEY and GOOGLE_SEARCH_CX to .env file' 
+    });
+  }
+
   try {
     const searchUrl = new URL('https://www.googleapis.com/customsearch/v1');
     searchUrl.searchParams.append('key', process.env.GOOGLE_SEARCH_KEY);
@@ -162,6 +174,12 @@ router.post('/search-and-summarize', async (req, res) => {
   
   if (!query) {
     return res.status(400).json({ error: 'Query is required' });
+  }
+
+  if (!process.env.GOOGLE_SEARCH_KEY || !process.env.GOOGLE_SEARCH_CX) {
+    return res.status(503).json({ 
+      error: 'Web search not configured. Please add GOOGLE_SEARCH_KEY and GOOGLE_SEARCH_CX to .env file' 
+    });
   }
 
   try {
