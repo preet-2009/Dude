@@ -537,13 +537,16 @@ const Features = (() => {
       });
 
       if (!res.ok) {
-        const error = await res.json();
+        const error = await res.json().catch(() => ({ error: `HTTP ${res.status}: ${res.statusText}` }));
+        console.error('Image generation API error:', error);
+        
         if (error.retry) {
           // Model is loading, retry after 3 seconds
+          console.log('Model loading, retrying in 3 seconds...');
           await new Promise(resolve => setTimeout(resolve, 3000));
           return generateImage(prompt, model);
         }
-        throw new Error(error.error || 'Failed to generate image');
+        throw new Error(error.error || error.detail || 'Failed to generate image');
       }
 
       return await res.json();

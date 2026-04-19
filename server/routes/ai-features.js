@@ -21,6 +21,9 @@ router.post('/generate-image', async (req, res) => {
   try {
     const selectedModel = model || 'stabilityai/stable-diffusion-2-1';
     
+    console.log(`Generating image with model: ${selectedModel}`);
+    console.log(`Prompt: ${prompt}`);
+    
     const response = await fetch(
       `https://api-inference.huggingface.co/models/${selectedModel}`,
       {
@@ -37,6 +40,8 @@ router.post('/generate-image', async (req, res) => {
         }),
       }
     );
+
+    console.log(`Hugging Face response status: ${response.status}`);
 
     if (!response.ok) {
       const error = await response.text();
@@ -57,6 +62,7 @@ router.post('/generate-image', async (req, res) => {
 
     // Get image as buffer
     const imageBuffer = await response.buffer();
+    console.log(`Image generated successfully, size: ${imageBuffer.length} bytes`);
     
     // Convert to base64
     const base64Image = imageBuffer.toString('base64');
