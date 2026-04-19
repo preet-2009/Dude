@@ -3,48 +3,71 @@ const router = express.Router();
 const fetch = require('node-fetch');
 
 // ─────────────────────────────────────────────
-// IMAGE GENERATION - Pollinations.ai (Free, No API Key)
+// IMAGE GENERATION - OpenAI DALL-E 3
 // ─────────────────────────────────────────────
 router.post('/generate-image', async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, size = '1024x1024', quality = 'standard' } = req.body;
   
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
   }
 
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(503).json({ 
+      error: 'Image generation not configured. Please add OPENAI_API_KEY to .env file' 
+    });
+  }
+
   try {
-    console.log(`Generating image with Pollinations.ai`);
+    console.log(`Generating image with DALL-E 3`);
     console.log(`Prompt: ${prompt}`);
+    console.log(`Size: ${size}, Quality: ${quality}`);
     
-    // Pollinations.ai provides free image generation without API keys
-    const encodedPrompt = encodeURIComponent(prompt);
-    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true`;
-    
-    console.log(`Fetching image from: ${imageUrl}`);
-    
-    const response = await fetch(imageUrl);
-    
+    const response = await fetch('https://api.openai.com/v1/images/generations', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'dall-e-3',
+        prompt: prompt,
+        n: 1,
+        size: size, // '1024x1024', '1024x1792', or '1792x1024'
+        quality: quality, // 'standard' or 'hd'
+        response_format: 'url',
+      }),
+    });
+
     if (!response.ok) {
-      console.error(`Pollinations error: ${response.status} ${response.statusText}`);
+      const error = await response.json();
+      console.error('OpenAI DALL-E error:', error);
       return res.status(response.status).json({ 
-        error: 'Failed to generate image',
-        detail: `HTTP ${response.status}: ${response.statusText}`
+        error: error.error?.message || 'Failed to generate image',
+        detail: error.error?.type || 'Unknown error'
       });
     }
 
-    // Get image as buffer
-    const imageBuffer = await response.buffer();
-    console.log(`Image generated successfully, size: ${imageBuffer.length} bytes`);
-    
-    // Convert to base64
+    const data = await response.json();
+    const imageUrl = data.data[0].url;
+    const revisedPrompt = data.data[0].revised_prompt;
+
+    console.log(`Image generated successfully`);
+    console.log(`Revised prompt: ${revisedPrompt}`);
+
+    // Fetch the image and convert to base64 for embedding
+    const imageResponse = await fetch(imageUrl);
+    const imageBuffer = await imageResponse.buffer();
     const base64Image = imageBuffer.toString('base64');
-    const dataUrl = `data:image/jpeg;base64,${base64Image}`;
+    const dataUrl = `data:image/png;base64,${base64Image}`;
 
     res.json({
       success: true,
       imageUrl: dataUrl,
-      prompt,
-      model: 'pollinations-ai',
+      originalUrl: imageUrl,
+      prompt: prompt,
+      revisedPrompt: revisedPrompt,
+      model: 'dall-e-3',
     });
 
   } catch (err) {
@@ -60,9 +83,11 @@ router.post('/generate-image', async (req, res) => {
 router.get('/image-models', (req, res) => {
   const models = [
     {
-      id: 'pollinations-ai',
-      name: 'Pollinations AI',
-      description: 'Free, fast, high quality',
+      id: 'dall-e-3',
+      name: 'DALL-E 3',
+      description: 'OpenAI - Best quality, most creative',
+      sizes: ['1024x1024', '1024x1792', '1792x1024'],
+      qualities: ['standard', 'hd'],
     },
   ];
   
