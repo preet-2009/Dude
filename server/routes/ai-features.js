@@ -30,24 +30,30 @@ router.post('/generate-image', async (req, res) => {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           inputs: prompt,
-          options: {
-            wait_for_model: true,
-          },
         }),
       }
     );
 
     console.log(`Hugging Face response status: ${response.status}`);
+    console.log(`Response content-type: ${response.headers.get('content-type')}`);
 
     if (!response.ok) {
-      const error = await response.text();
+      const contentType = response.headers.get('content-type');
+      let error;
+      
+      if (contentType && contentType.includes('application/json')) {
+        error = await response.json();
+      } else {
+        error = await response.text();
+      }
+      
       console.error('Hugging Face error:', error);
       
-      if (response.status === 503) {
+      // Check if model is loading
+      if (response.status === 503 || (typeof error === 'object' && error.error?.includes('loading'))) {
         return res.status(503).json({ 
           error: 'Model is loading, please try again in a few seconds',
           retry: true 
@@ -56,7 +62,7 @@ router.post('/generate-image', async (req, res) => {
       
       return res.status(response.status).json({ 
         error: 'Failed to generate image',
-        detail: error 
+        detail: typeof error === 'string' ? error : error.error || JSON.stringify(error)
       });
     }
 
