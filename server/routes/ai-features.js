@@ -3,66 +3,32 @@ const router = express.Router();
 const fetch = require('node-fetch');
 
 // ─────────────────────────────────────────────
-// IMAGE GENERATION - Hugging Face
+// IMAGE GENERATION - Pollinations.ai (Free, No API Key)
 // ─────────────────────────────────────────────
 router.post('/generate-image', async (req, res) => {
-  const { prompt, model } = req.body;
+  const { prompt } = req.body;
   
   if (!prompt) {
     return res.status(400).json({ error: 'Prompt is required' });
   }
 
-  if (!process.env.HUGGINGFACE_API_KEY) {
-    return res.status(503).json({ 
-      error: 'Image generation not configured. Please add HUGGINGFACE_API_KEY to .env file' 
-    });
-  }
-
   try {
-    const selectedModel = model || 'stabilityai/stable-diffusion-2-1';
-    
-    console.log(`Generating image with model: ${selectedModel}`);
+    console.log(`Generating image with Pollinations.ai`);
     console.log(`Prompt: ${prompt}`);
     
-    const response = await fetch(
-      `https://api-inference.huggingface.co/models/${selectedModel}`,
-      {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
-        },
-        body: JSON.stringify({
-          inputs: prompt,
-        }),
-      }
-    );
-
-    console.log(`Hugging Face response status: ${response.status}`);
-    console.log(`Response content-type: ${response.headers.get('content-type')}`);
-
+    // Pollinations.ai provides free image generation without API keys
+    const encodedPrompt = encodeURIComponent(prompt);
+    const imageUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=512&nologo=true`;
+    
+    console.log(`Fetching image from: ${imageUrl}`);
+    
+    const response = await fetch(imageUrl);
+    
     if (!response.ok) {
-      const contentType = response.headers.get('content-type');
-      let error;
-      
-      if (contentType && contentType.includes('application/json')) {
-        error = await response.json();
-      } else {
-        error = await response.text();
-      }
-      
-      console.error('Hugging Face error:', error);
-      
-      // Check if model is loading
-      if (response.status === 503 || (typeof error === 'object' && error.error?.includes('loading'))) {
-        return res.status(503).json({ 
-          error: 'Model is loading, please try again in a few seconds',
-          retry: true 
-        });
-      }
-      
+      console.error(`Pollinations error: ${response.status} ${response.statusText}`);
       return res.status(response.status).json({ 
         error: 'Failed to generate image',
-        detail: typeof error === 'string' ? error : error.error || JSON.stringify(error)
+        detail: `HTTP ${response.status}: ${response.statusText}`
       });
     }
 
@@ -72,13 +38,13 @@ router.post('/generate-image', async (req, res) => {
     
     // Convert to base64
     const base64Image = imageBuffer.toString('base64');
-    const imageUrl = `data:image/png;base64,${base64Image}`;
+    const dataUrl = `data:image/jpeg;base64,${base64Image}`;
 
     res.json({
       success: true,
-      imageUrl,
+      imageUrl: dataUrl,
       prompt,
-      model: selectedModel,
+      model: 'pollinations-ai',
     });
 
   } catch (err) {
@@ -94,24 +60,9 @@ router.post('/generate-image', async (req, res) => {
 router.get('/image-models', (req, res) => {
   const models = [
     {
-      id: 'stabilityai/stable-diffusion-2-1',
-      name: 'Stable Diffusion 2.1',
-      description: 'High quality, versatile',
-    },
-    {
-      id: 'runwayml/stable-diffusion-v1-5',
-      name: 'Stable Diffusion 1.5',
-      description: 'Fast and reliable',
-    },
-    {
-      id: 'prompthero/openjourney',
-      name: 'OpenJourney',
-      description: 'Artistic style',
-    },
-    {
-      id: 'CompVis/stable-diffusion-v1-4',
-      name: 'Stable Diffusion 1.4',
-      description: 'Classic model',
+      id: 'pollinations-ai',
+      name: 'Pollinations AI',
+      description: 'Free, fast, high quality',
     },
   ];
   
