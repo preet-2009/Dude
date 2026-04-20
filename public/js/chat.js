@@ -125,6 +125,10 @@ const Chat = (() => {
               if (parsed.credits !== undefined && window.updateCreditsUI) {
                 window.updateCreditsUI(parsed.credits);
               }
+              // Update global usage display
+              if (window.updateGlobalUsageUI) {
+                window.updateGlobalUsageUI();
+              }
               // Auto-title sidebar and save session
               const title = text.slice(0, 45) + (text.length > 45 ? '…' : '');
               Sidebar.updateTitle(sessionId, title || 'New Chat');

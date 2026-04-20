@@ -110,6 +110,18 @@ async function initDB() {
       CREATE INDEX IF NOT EXISTS idx_messages_pinned ON chat_messages(is_pinned);
     `);
 
+    // Create global credit usage tracking table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS global_credit_usage (
+        id SERIAL PRIMARY KEY,
+        date DATE NOT NULL DEFAULT CURRENT_DATE,
+        credits_used INTEGER DEFAULT 0,
+        UNIQUE(date)
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_global_usage_date ON global_credit_usage(date);
+    `);
+
     console.log('Database ready.');
   } catch (err) {
     console.error('Database initialization error:', err);

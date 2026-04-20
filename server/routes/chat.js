@@ -72,6 +72,14 @@ router.post('/send', async (req, res) => {
           [req.user.id]
         );
         remainingCredits = creditRows[0]?.credits ?? credits;
+
+        // Track global credit usage
+        await pool.query(
+          `INSERT INTO global_credit_usage (date, credits_used) 
+           VALUES (CURRENT_DATE, 5) 
+           ON CONFLICT (date) 
+           DO UPDATE SET credits_used = global_credit_usage.credits_used + 5`
+        );
       } catch (creditErr) {
         // Credits column might not exist yet
         console.log('Could not update credits:', creditErr.message);
@@ -250,6 +258,23 @@ router.post('/upload', upload.single('file'), async (req, res) => {
     console.error('Upload error:', err.message);
     if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
     res.status(500).json({ error: 'Failed to process file' });
+  }
+});
+
+// ─────────────────────────────────────────────
+// GET /api/chat/global-usage
+// Returns global credit usage for today
+// ─────────────────────────────────────────────
+router.get('/global-usage', async (req, res) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT credits_used FROM global_credit_usage WHERE date = CURRENT_DATE`
+    );
+    const creditsUsed = rows[0]?.credits_used || 0;
+    res.json({ creditsUsed });
+  } catch (err) {
+    console.error('Global usage error:', err.message);
+    res.json({ creditsUsed: 0 });
   }
 });
 

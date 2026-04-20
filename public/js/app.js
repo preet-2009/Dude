@@ -48,8 +48,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (countTop) countTop.textContent = displayValue;
   }
 
+  // ── Global Usage UI ────────────────────────
+  async function updateGlobalUsageUI() {
+    try {
+      const res = await fetch('/api/chat/global-usage');
+      const data = await res.json();
+      const globalUsageCount = document.getElementById('globalUsageCount');
+      if (globalUsageCount) {
+        // Format number with commas for readability
+        const formatted = data.creditsUsed.toLocaleString();
+        globalUsageCount.textContent = formatted;
+      }
+    } catch (err) {
+      console.error('Failed to fetch global usage:', err);
+    }
+  }
+
+  // Update global usage on load and every 30 seconds
+  updateGlobalUsageUI();
+  setInterval(updateGlobalUsageUI, 30000);
+
   // Expose so chat.js can call it
   window.updateCreditsUI = updateCreditsUI;
+  window.updateGlobalUsageUI = updateGlobalUsageUI;
   window.getCurrentCredits = () => currentCredits;
   window.showNoCredits = () => {
     const overlay = document.getElementById('noCreditsOverlay');

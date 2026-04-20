@@ -238,6 +238,35 @@ body {
   gap: 10px;
 }
 
+/* Global Usage Display */
+.global-usage-display {
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  transition: all 0.15s;
+  cursor: help;
+}
+.global-usage-display:hover {
+  background: var(--bg3);
+  border-color: var(--border2);
+}
+.global-usage-display svg {
+  color: var(--text3);
+  opacity: 0.7;
+}
+#globalUsageCount {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+.usage-label {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 400;
+}
+
 /* Credits Display */
 .credits-display {
   display: flex; align-items: center; gap: 10px;
@@ -818,6 +847,9 @@ textarea#messageInput::placeholder { color: var(--text3); }
   }
   .topbar {
     justify-content: space-between;
+  }
+  .global-usage-display {
+    display: none;
   }
   .credits-display {
     display: none;
