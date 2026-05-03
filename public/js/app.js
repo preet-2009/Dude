@@ -720,16 +720,4 @@ function useChip(el) {
     });
   }
 
-  // ── WEB SEARCH ─────────────────────────────
-  const webSearchBtn = document.getElementById('webSearchBtn');
-
-  if (webSearchBtn) {
-    webSearchBtn.addEventListener('click', () => {
-      const input = document.getElementById('messageInput');
-      input.value = '/search ';
-      input.focus();
-      showToast('💡 Type your search query after /search');
-    });
-  }
-
-  console.log('Image generation and web search initialized');
+  console.log('Image generation initialized');

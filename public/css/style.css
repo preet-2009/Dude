@@ -1953,15 +1953,13 @@ a:focus-visible {
 }
 
 
-/* ── Image Generation & Web Search ─────────── */
-#imageGenBtn:hover,
-#webSearchBtn:hover {
+/* ── Image Generation ─────────── */
+#imageGenBtn:hover {
   color: var(--text) !important;
   background: var(--bg3) !important;
 }
 
-#imageGenBtn.active,
-#webSearchBtn.active {
+#imageGenBtn.active {
   color: var(--accent) !important;
   background: var(--accent-dim) !important;
 }

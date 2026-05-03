@@ -24,16 +24,6 @@ const Chat = (() => {
       return;
     }
 
-    if (text.startsWith('/search ')) {
-      const query = text.substring(8).trim();
-      if (!query) {
-        showError('Please provide a search query after /search');
-        return;
-      }
-      await handleWebSearch(query);
-      return;
-    }
-
     // Close history sidebar when starting to chat
     const historySidebar = document.getElementById('historySidebar');
     const historyOverlay = document.getElementById('historyOverlay');
@@ -246,47 +236,6 @@ const Chat = (() => {
     } catch (err) {
       content.innerHTML = `<p style="color: var(--error);">❌ Failed to generate image: ${UI.escapeHtml(err.message)}</p>`;
       showError('Failed to generate image: ' + err.message);
-    } finally {
-      isLoading = false;
-      setInputDisabled(false);
-    }
-  }
-
-  // Handle web search command
-  async function handleWebSearch(query) {
-    UI.appendUserMessage(`/search ${query}`);
-    UI.showTypingIndicator();
-    isLoading = true;
-    setInputDisabled(true);
-
-    try {
-      if (!window.Features || !window.Features.searchAndSummarize) {
-        throw new Error('Web search not available');
-      }
-      
-      const result = await window.Features.searchAndSummarize(query);
-      UI.removeTypingIndicator();
-      
-      // Format search results
-      let resultHtml = `<div style="margin-bottom:12px"><strong>Search Results for:</strong> ${UI.escapeHtml(query)}</div>`;
-      resultHtml += `<div style="background:var(--bg3);padding:12px;border-radius:8px;margin-bottom:12px">`;
-      resultHtml += marked.parse(result.summary);
-      resultHtml += `</div>`;
-      resultHtml += `<div style="font-size:12px;color:var(--text3);margin-top:8px"><strong>Sources:</strong></div>`;
-      
-      result.sources.forEach((source, idx) => {
-        resultHtml += `<div style="font-size:12px;margin-top:4px">`;
-        resultHtml += `[${idx + 1}] <a href="${source.link}" target="_blank" style="color:var(--accent)">${UI.escapeHtml(source.title)}</a>`;
-        resultHtml += `</div>`;
-      });
-      
-      const { content } = UI.appendAIMessage();
-      content.innerHTML = resultHtml;
-      
-      window.showToast('✓ Search completed!');
-    } catch (err) {
-      UI.removeTypingIndicator();
-      showError('Search failed: ' + err.message);
     } finally {
       isLoading = false;
       setInputDisabled(false);

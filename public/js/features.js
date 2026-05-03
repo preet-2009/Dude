@@ -567,48 +567,7 @@ const Features = (() => {
     }
   }
 
-  // ─────────────────────────────────────────────
-  // WEB SEARCH
-  // ─────────────────────────────────────────────
-  async function webSearch(query, num = 5) {
-    try {
-      const res = await fetch('/api/ai/web-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, num }),
-      });
 
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Search failed');
-      }
-
-      return await res.json();
-    } catch (err) {
-      console.error('Web search error:', err);
-      throw err;
-    }
-  }
-
-  async function searchAndSummarize(query) {
-    try {
-      const res = await fetch('/api/ai/search-and-summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
-      });
-
-      if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.error || 'Search failed');
-      }
-
-      return await res.json();
-    } catch (err) {
-      console.error('Search and summarize error:', err);
-      throw err;
-    }
-  }
 
   // ─────────────────────────────────────────────
   // INITIALIZE
@@ -650,8 +609,6 @@ const Features = (() => {
     getContextMemory,
     generateImage,
     getImageModels,
-    webSearch,
-    searchAndSummarize,
   };
 })();
 
