@@ -183,6 +183,4 @@ router.get('/image-models', (req, res) => {
   res.json(models);
 });
 
-// ─────────────────────────────────────────────
-// IMAGE GENERATION - Multiple Providers with Fallback
-// ─────────────────────────────────────────────
+module.exports = router;
