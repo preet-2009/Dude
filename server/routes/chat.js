@@ -6,6 +6,7 @@ const fs = require('fs');
 const fetch = require('node-fetch');
 const { extractTextFromFile } = require('../utils/fileParser');
 const { pool } = require('../db');
+const { filterProfanity, containsProfanity } = require('../utils/profanityFilter');
 
 // Multer — temp storage for uploads
 const upload = multer({
@@ -25,6 +26,15 @@ router.post('/send', async (req, res) => {
 
   if (!sessionId || !message) {
     return res.status(400).json({ error: 'sessionId and message are required' });
+  }
+
+  // Check for profanity in user message
+  if (containsProfanity(message)) {
+    console.log(`Profanity detected from user ${req.user.email}: "${message}"`);
+    return res.json({ 
+      reply: '=-) better luck next time',
+      blocked: true 
+    });
   }
 
   try {

@@ -73,6 +73,22 @@ const Chat = (() => {
         return;
       }
 
+      // Check if response is JSON (profanity blocked)
+      const contentType = res.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const data = await res.json();
+        UI.removeTypingIndicator();
+        
+        if (data.blocked) {
+          // Profanity detected - show replacement message
+          const { content } = UI.appendAIMessage();
+          content.innerHTML = `<p style="color: var(--accent); font-size: 18px; text-align: center; padding: 20px;">
+            ${UI.escapeHtml(data.reply)}
+          </p>`;
+          return;
+        }
+      }
+
       // Remove typing dots — we'll stream into a real bubble
       UI.removeTypingIndicator();
       const { content } = UI.appendAIMessage();
