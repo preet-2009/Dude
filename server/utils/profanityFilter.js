@@ -58,9 +58,7 @@ const badWords = [
 const patterns = badWords.map(word => {
   // Escape special regex characters
   const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  // Match word with optional special characters between letters
-  const flexible = escaped.split('').join('[*@#$%^&!]*');
-  return new RegExp(`\\b${flexible}\\b`, 'gi');
+  return new RegExp(`\\b${escaped}\\b`, 'gi');
 });
 
 /**
