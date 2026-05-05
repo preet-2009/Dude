@@ -721,6 +721,17 @@ textarea#messageInput::placeholder { color: var(--text3); }
 }
 .icon-btn:hover { background: var(--bg3); color: var(--text); }
 
+.admin-btn {
+  background: var(--accent-dim) !important;
+  color: var(--accent) !important;
+  border: 1px solid var(--border2);
+}
+.admin-btn:hover {
+  background: var(--accent-glow) !important;
+  color: var(--accent) !important;
+  border-color: var(--accent) !important;
+}
+
 
 
 /* Theme icons */

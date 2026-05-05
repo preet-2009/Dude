@@ -30,6 +30,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (isOwner && userNameEl) {
       userNameEl.innerHTML = `${user.name || 'Owner'} <span class="owner-badge">👑</span>`;
+      
+      // Add admin dashboard button for owner
+      const topbarLeft = document.querySelector('.topbar-left');
+      if (topbarLeft) {
+        const adminBtn = document.createElement('button');
+        adminBtn.className = 'icon-btn admin-btn';
+        adminBtn.title = 'Admin Dashboard';
+        adminBtn.innerHTML = `
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+            <path d="M2 17l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        `;
+        adminBtn.onclick = () => window.open('/admin', '_blank');
+        topbarLeft.insertBefore(adminBtn, topbarLeft.firstChild);
+      }
     }
   } catch (err) {
     console.error('Auth error:', err);

@@ -11,6 +11,7 @@ const authRoutes = require('./routes/auth');
 const featuresRoutes = require('./routes/features');
 const exportRoutes = require('./routes/export');
 const aiFeaturesRoutes = require('./routes/ai-features');
+const adminRoutes = require('./routes/admin');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -61,6 +62,7 @@ app.use('/api/chat', requireAuth, chatRoutes);
 app.use('/api/features', requireAuth, featuresRoutes);
 app.use('/api/export', requireAuth, exportRoutes);
 app.use('/api/ai', requireAuth, aiFeaturesRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -86,6 +88,10 @@ app.get('/login', (req, res) => {
 
 app.get('/signup', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/signup.html'));
+});
+
+app.get('/admin', requireAuthPage, (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/admin.html'));
 });
 
 app.get('*', (req, res) => {
